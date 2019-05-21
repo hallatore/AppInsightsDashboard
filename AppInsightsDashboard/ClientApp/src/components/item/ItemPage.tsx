@@ -79,7 +79,7 @@ const QueryPartButton = styled.button`
     margin-top: 2px;
     border: 0;
     padding: 7px 15px;
-    word-break: break-word;
+    word-break: break-all;
     cursor: pointer;
     background: #333;
     color: #fff;
@@ -95,7 +95,7 @@ const QueryPartButton = styled.button`
 
 const Query = styled.div`
     white-space: pre-wrap;
-    word-break: break-word;
+    word-break: break-all;
     font-family: monospace;
     line-height: 1.3;
     font-size: 11px;
