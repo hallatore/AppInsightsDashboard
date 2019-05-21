@@ -32,6 +32,7 @@ namespace AppInsights.Analyzers
                 requests
                 | where timestamp > ago(1h)
                 {whereQuery}");
+
                 queryGroup = new QueryGroup(requestsQuery, duration);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);

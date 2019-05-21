@@ -14,23 +14,24 @@ namespace AppInsights.Analyzers
             var isRequestsQuery = query.FirstOrDefault()?.Trim().StartsWith("requests", StringComparison.OrdinalIgnoreCase) == true;
             QueryGroup queryGroup;
 
+            var whereQuery = @"
+                | summarize _count=sum(itemCount) by resultCode
+                | project resultCode, _count
+                | sort by _count desc";
+
             if (isRequestsQuery)
             {
                 queryGroup = new QueryGroup(query, duration);
                 queryGroup.AddParts(queryParts);
-                queryGroup.Append(QueryBuilder.Parse(@"
-                | summarize _count=sum(itemCount) by resultCode
-                | project resultCode, _count
-                | sort by _count desc"));
+                queryGroup.Append(QueryBuilder.Parse(whereQuery));
             }
             else
             {
-                var requestsQuery = QueryBuilder.Parse(@"
+                var requestsQuery = QueryBuilder.Parse($@"
                 requests
                 | where timestamp > ago(1h)
-                | summarize _count=sum(itemCount) by resultCode
-                | project resultCode, _count
-                | sort by _count desc");
+                {whereQuery}");
+
                 queryGroup = new QueryGroup(requestsQuery, duration);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);

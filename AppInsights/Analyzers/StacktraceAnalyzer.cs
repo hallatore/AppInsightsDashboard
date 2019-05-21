@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace AppInsights.Analyzers
@@ -16,27 +15,26 @@ namespace AppInsights.Analyzers
             var isExceptionsQuery = query.FirstOrDefault()?.Trim().StartsWith("exceptions", StringComparison.OrdinalIgnoreCase) == true;
             QueryGroup queryGroup;
 
+            var whereQuery = @"
+                | project operation_Id, itemCount, type, stack = details[0].parsedStack[0]
+                | project operation_Id, itemCount, filename = stack.fileName, type, line = stack.line
+                | where filename != ''
+                | summarize sum(itemCount) by tostring(filename), type, tostring(line)
+                | order by sum_itemCount";
+
             if (isExceptionsQuery)
             {
                 queryGroup = new QueryGroup(query, duration);
                 queryGroup.AddParts(queryParts);
-                queryGroup.Append(QueryBuilder.Parse(@"
-                | project operation_Id, itemCount, type, stack = details[0].parsedStack[0]
-                | project operation_Id, itemCount, filename = stack.fileName, type, line = stack.line
-                | where filename != ''
-                | summarize sum(itemCount) by tostring(filename), type, tostring(line)
-                | order by sum_itemCount"));
+                queryGroup.Append(QueryBuilder.Parse(whereQuery));
             }
             else
             {
-                var exceptionsQuery = QueryBuilder.Parse(@"
+                var exceptionsQuery = QueryBuilder.Parse($@"
                 exceptions
                 | where timestamp > ago(1h)
-                | project operation_Id, itemCount, type, stack = details[0].parsedStack[0]
-                | project operation_Id, itemCount, filename = stack.fileName, type, line = stack.line
-                | where filename != ''
-                | summarize sum(itemCount) by tostring(filename), type, tostring(line)
-                | order by sum_itemCount");
+                {whereQuery}");
+
                 queryGroup = new QueryGroup(exceptionsQuery, duration);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);

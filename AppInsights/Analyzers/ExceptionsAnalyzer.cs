@@ -14,23 +14,24 @@ namespace AppInsights.Analyzers
             var isExceptionsQuery = query.FirstOrDefault()?.Trim().StartsWith("exceptions", StringComparison.OrdinalIgnoreCase) == true;
             QueryGroup queryGroup;
 
+            var whereQuery = @"
+                | summarize _count = sum(itemCount) by type
+                | sort by _count desc
+                | take 20";
+
             if (isExceptionsQuery)
             {
                 queryGroup = new QueryGroup(query, duration);
                 queryGroup.AddParts(queryParts);
-                queryGroup.Append(QueryBuilder.Parse(@"
-                | summarize _count = sum(itemCount) by type
-                | sort by _count desc
-                | take 20"));
+                queryGroup.Append(QueryBuilder.Parse(whereQuery));
             }
             else
             {
-                var exceptionsQuery = QueryBuilder.Parse(@"
+                var exceptionsQuery = QueryBuilder.Parse($@"
                 exceptions
                 | where timestamp > ago(1h)
-                | summarize _count = sum(itemCount) by type
-                | sort by _count desc
-                | take 20");
+                {whereQuery}");
+
                 queryGroup = new QueryGroup(exceptionsQuery, duration);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);
