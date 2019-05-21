@@ -29,7 +29,7 @@ namespace ConfigLogic.Dashboard
 
             if (table.Rows.Count > item.StatusSplitFactor)
             {
-                var tmpQuery = table.Rows.OrderByDescending(v => v[0]).AsEnumerable();
+                var tmpQuery = table.Rows.OrderByDescending(v => (DateTime)v[0]).AsEnumerable();
                 var finalTmpValue = 0.0;
 
                 if (item.Duration.GetIntervalString().GetTimeSpan() < TimeSpan.FromMinutes(10))
@@ -45,11 +45,11 @@ namespace ConfigLogic.Dashboard
 
                 if (item.Total == ItemTotal.Sum)
                 {
-                    finalTmpValue = tmpQuery.Sum(v => v[1]);
+                    finalTmpValue = tmpQuery.Sum(v => (double)v[1]);
                 }
                 else if (item.Total == ItemTotal.Average)
                 {
-                    finalTmpValue = tmpQuery.Average(v => v[1]);
+                    finalTmpValue = tmpQuery.Average(v => (double)v[1]);
                 }
                 else
                 {
