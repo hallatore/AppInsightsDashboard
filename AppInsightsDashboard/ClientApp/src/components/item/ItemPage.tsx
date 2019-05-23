@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { RouteComponentProps } from "react-router";
 import AnalyzerTable from './AnalyzerTable';
 import Loader from '../utils/Loader';
-import Chart from '../utils/Chart';
+import Chart, { ChartValue } from "../utils/GoogleLineChart";
 
 const Container = styled.div`
     max-width: 1600px;
@@ -147,7 +147,7 @@ interface State {
     duration: ItemDuration;
     query: string;
     queryParts: string[];
-    chartValues: number[];
+    chartValues: ChartValue[];
     chartMax: number;
     count: number;
 }
@@ -197,8 +197,7 @@ export default class ItemPage extends React.Component<Props, State> {
                     <MainSplitContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
-                            <ChartMax>Max: {Math.max(...chartValues)}</ChartMax>
-                            <ItemChart width="930" height="200" chartValues={chartValues} chartMax={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }} />
+                            <ItemChart values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }} />
                         </AreaContainer>
                         <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} />
@@ -262,7 +261,7 @@ export default class ItemPage extends React.Component<Props, State> {
             .then(data => {
                 this.setState({
                     name: data.name,
-                    chartValues: data.chartValues,
+                    chartValues: data.chartValues.map((item: { date: string; value: number; }) => { return { date: new Date(Date.parse(item.date)), value: item.value } }),
                     chartMax: data.chartMax,
                     query: data.query,
                     count: data.count,

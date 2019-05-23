@@ -4,15 +4,14 @@ import Loader from '../utils/Loader';
 
 const QueryButtonContainer = styled.div`
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: calc(50% - 10px);
     right: -5px;
     display: none;
 `;
 
 const QueryButton = styled.button`
     border: 0;
-    height: 100%;
+    height: 20px;
     width: 30px;
     padding: 0;
     text-align: center;

@@ -89,8 +89,8 @@ namespace AppInsightsDashboard.Controllers
                 values = await GetChartValues(item, queryGroup.ToString());
             }
 
-            var chart = TransformQuery(values, durationString.GetTimeSpan(), intervalString.GetTimeSpan());
-            var max = Math.Max(item.MinChartValue, chart.Any() ? chart.Max() : 0);
+            var chart = FillEmptySlotsInTimeRange(values, durationString.GetTimeSpan(), intervalString.GetTimeSpan());
+            var max = Math.Max(item.MinChartValue, chart.Any() ? chart.Max(c => c.Value) : 0);
 
             queryGroup.RemoveProjectAndSummarize();
             var count = await GetCountQuery(dashboardId, groupIndex, itemIndex, duration, queryParts);
@@ -98,7 +98,12 @@ namespace AppInsightsDashboard.Controllers
             return new
             {
                 Name = $"{groupKey} / {item.Name}",
-                ChartValues = chart,
+                ChartValues = chart
+                    .Select(c => new
+                    {
+                        Date = c.Date,
+                        Value = c.Value
+                    }),
                 ChartMax = max,
                 Query = queryGroup.ToString(),
                 Count = count
@@ -178,6 +183,46 @@ namespace AppInsightsDashboard.Controllers
             query = Regex.Replace(query, @"bin\(([\w]+),[ ]*[0-9a-z]+\)", $"bin($1, {bin})");
             query = Regex.Replace(query, @"\r\n[\W]*\|", "\r\n|");
             return query;
+        }
+
+        private List<(DateTime Date, double Value)> FillEmptySlotsInTimeRange(List<RowItem> items, TimeSpan duration, TimeSpan interval)
+        {
+            if (items?.Any() == false)
+                return new List<(DateTime, double)>();
+
+            var dictionary = items.ToDictionary(item => item.Date, item => item.Value);
+            var maxDate = items.Max(c => c.Date);
+
+            while (maxDate < DateTime.UtcNow - interval)
+            {
+                maxDate += interval;
+            }
+
+            var minDate = maxDate - duration;
+
+            while (minDate <= maxDate)
+            {
+                if (!dictionary.ContainsKey(minDate))
+                    dictionary.Add(minDate, 0);
+
+                minDate += interval;
+            }
+
+            var result = dictionary
+                .OrderBy(c => c.Key)
+                .Select(c => (c.Key, Math.Round(c.Value, 1)))
+                .ToList();
+
+            if (result.Count > 10)
+            {
+                var skipAmount = interval.TotalMinutes > 5 ? 1 : 3;
+                return result
+                    .Skip(1)
+                    .SkipLast(skipAmount)
+                    .ToList();
+            }
+
+            return result;
         }
 
         private List<double> TransformQuery(List<RowItem> items, TimeSpan duration, TimeSpan interval)
