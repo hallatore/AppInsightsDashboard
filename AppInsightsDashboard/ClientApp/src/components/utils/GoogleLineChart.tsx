@@ -43,7 +43,12 @@ export default class GoogleLineChart extends React.Component<{
                     vAxis: {
                         //format: "long",
                         textStyle: { color: "#999" },
-                        gridlines: { color: "transparent" }
+                        gridlines: { color: "transparent" },
+                        viewWindowMode: 'explicit',
+                        viewWindow: {
+                            max: this.props.max,
+                            min: 0
+                        }
                     },
                     legend: "none",
                     height: 200,

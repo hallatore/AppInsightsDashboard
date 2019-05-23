@@ -90,7 +90,7 @@ namespace AppInsightsDashboard.Controllers
             }
 
             var chart = FillEmptySlotsInTimeRange(values, durationString.GetTimeSpan(), intervalString.GetTimeSpan());
-            var max = Math.Max(item.MinChartValue, chart.Any() ? chart.Max(c => c.Value) : 0);
+            var max = Math.Max(item.MinChartValue / item.Duration.GetIntervalString().GetTimeSpan().TotalMinutes * intervalString.GetTimeSpan().TotalMinutes, chart.Any() ? chart.Max(c => c.Value) : 0);
 
             queryGroup.RemoveProjectAndSummarize();
             var count = await GetCountQuery(dashboardId, groupIndex, itemIndex, duration, queryParts);
@@ -215,7 +215,7 @@ namespace AppInsightsDashboard.Controllers
 
             if (result.Count > 10)
             {
-                var skipAmount = interval.TotalMinutes > 5 ? 1 : 3;
+                var skipAmount = interval.TotalMinutes > 5 ? 1 : 4;
                 return result
                     .Skip(1)
                     .SkipLast(skipAmount)
