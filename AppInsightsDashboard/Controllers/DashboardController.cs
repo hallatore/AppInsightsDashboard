@@ -30,16 +30,11 @@ namespace AppInsightsDashboard.Controllers
             }
 
             return _config.Dashboards[dashboardId]
-                .Select(group => new DashboardGroup
-                {
-                    Name = group.Key,
-                    Items = group.Value
-                        .Select(item => new DashboardItem
-                        {
-                            Name = item.Name,
-                            Postfix = item.Postfix
-                        })
-                });
+                .Select(group => new DashboardGroup(
+                    group.Key,
+                    group.Value.Select(item => new DashboardItem(item.Name, item.Postfix))
+                    )
+                );
         }
 
         [HttpGet("Overview/{groupIndex}/{itemIndex}")]
@@ -65,7 +60,7 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Details/{groupIndex}/{itemIndex}")]
-        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts = null)
+        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts)
         {
             var durationString = duration.GetString();
             var intervalString = duration.GetIntervalString(120);
@@ -90,7 +85,10 @@ namespace AppInsightsDashboard.Controllers
             }
 
             var chart = FillEmptySlotsInTimeRange(values, durationString.GetTimeSpan(), intervalString.GetTimeSpan());
-            var max = Math.Max(item.MinChartValue / item.Duration.GetIntervalString().GetTimeSpan().TotalMinutes * intervalString.GetTimeSpan().TotalMinutes, chart.Any() ? chart.Max(c => c.Value) : 0);
+            var chartMax = chart.Any() ? chart.Max(c => c.Value) : 0;
+            var minMax = item.MinChartValue / item.Duration.GetIntervalString().GetTimeSpan().TotalMinutes * intervalString.GetTimeSpan().TotalMinutes;
+            minMax = Math.Min(minMax, chartMax * 5);
+            var max = Math.Max(minMax, chartMax);
 
             queryGroup.RemoveProjectAndSummarize();
             var count = await GetCountQuery(dashboardId, groupIndex, itemIndex, duration, queryParts);
@@ -98,12 +96,7 @@ namespace AppInsightsDashboard.Controllers
             return new
             {
                 Name = $"{groupKey} / {item.Name}",
-                ChartValues = chart
-                    .Select(c => new
-                    {
-                        Date = c.Date,
-                        Value = c.Value
-                    }),
+                ChartValues = chart.Select(c => new { c.Date, c.Value }),
                 ChartMax = max,
                 Query = queryGroup.ToString(),
                 Count = count
@@ -111,7 +104,7 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Analyzer/{groupIndex}/{itemIndex}/{analyzer}")]
-        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, string[] queryParts = null)
+        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, string[] queryParts)
         {
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
             var itemQuery = GetQueryString(item, duration.GetString(), duration.GetIntervalString());
@@ -131,7 +124,7 @@ namespace AppInsightsDashboard.Controllers
                     return await StacktraceAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
             }
 
-            return null;
+            throw new InvalidOperationException($"Analyzer \"{analyzer}\" was not found.");
         }
 
         private async Task<double> GetValueQuery(ConfigLogic.Dashboard.DashboardItem item, string query)
@@ -257,14 +250,26 @@ namespace AppInsightsDashboard.Controllers
 
     public class DashboardGroup
     {
-        public string Name { get; set; }
-        public IEnumerable<DashboardItem> Items { get; set; }
+        public string Name { get; }
+        public IEnumerable<DashboardItem> Items { get; }
+
+        public DashboardGroup(string name, IEnumerable<DashboardItem> items)
+        {
+            Name = name;
+            Items = items;
+        }
     }
 
     public class DashboardItem
     {
-        public string Name { get; set; }
-        public string Postfix { get; set; }
+        public string Name { get; }
+        public string Postfix { get; }
+
+        public DashboardItem(string name, string postfix)
+        {
+            Name = name;
+            Postfix = postfix;
+        }
     }
 
     public class RowItem

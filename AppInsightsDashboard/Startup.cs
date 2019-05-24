@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using ConfigLogic;
+using ConfigLogic.Dashboard;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -19,7 +23,6 @@ namespace AppInsightsDashboard
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression(options =>
@@ -36,10 +39,27 @@ namespace AppInsightsDashboard
                 configuration.RootPath = "ClientApp/build";
             });
 
-            services.AddSingleton<Config>();
+            services.AddSingleton(provider =>
+            {
+                var dashboards = new Dictionary<Guid, Dictionary<string, DashboardItem[]>>();
+                var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
+
+                foreach (var typeInfo in entryAssembly.DefinedTypes)
+                {
+                    if (!typeInfo.ImplementedInterfaces.Contains(typeof(IConfig)))
+                    {
+                        continue;
+                    }
+
+                    var config = (IConfig)entryAssembly.CreateInstance(typeInfo.FullName);
+                    var (id, groups) = config.Init(Configuration);
+                    dashboards.Add(id, groups);
+                }
+
+                return new Config(dashboards);
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var cultureInfo = new CultureInfo("en-US");
