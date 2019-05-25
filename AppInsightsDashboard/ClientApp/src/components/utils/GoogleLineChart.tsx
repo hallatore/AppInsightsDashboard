@@ -1,5 +1,5 @@
-﻿import * as React from "react";
-import { Chart } from "react-google-charts";
+﻿import * as React from 'react';
+import { Chart } from 'react-google-charts';
 
 export interface ChartValue {
     date: Date;
@@ -14,19 +14,19 @@ export default class GoogleLineChart extends React.Component<{
 }> {
     render() {
         const columns = [
-            { type: "date" },
-            { type: "number" },
-            { role: "style", type: "string" },
-            { role: "tooltip", type: "string" }
+            { type: 'date' },
+            { type: 'number' },
+            { role: 'style', type: 'string' },
+            { role: 'tooltip', type: 'string' }
         ];
 
-        const areaStyle = "color: #999; fill-color: #333; stroke-width: 2; fill-opacity: 1";
+        const areaStyle = 'color: #999; fill-color: #333; stroke-width: 2; fill-opacity: 1';
         const rows = [];
         const nonNullData = this.props.values.filter(row => row.value !== null);
 
         for (let row of nonNullData) {
             const { date, value } = row;
-            rows.push([date, value, areaStyle, `${value} - ${date.toLocaleString("en-GB").substring(12, 17)}`]);
+            rows.push([date, value, areaStyle, `${value} - ${date.toLocaleString('en-GB').substring(12, 17)}`]);
         }
 
         const data = [columns, ...rows];
@@ -39,41 +39,41 @@ export default class GoogleLineChart extends React.Component<{
                     tooltip: { isHtml: false },
                     hAxis: {
                         //format: "HH",
-                        textStyle: { color: "#999" },
+                        textStyle: { color: '#999' },
                         gridlines: {
-                            color: "transparent",
+                            color: 'transparent',
                             count: -1,
                             units: {
-                                days: { format: ["MMM dd"] },
-                                hours: { format: ["HH:mm"] },
-                                minutes: { format: ["HH:mm"] }
+                                days: { format: ['MMM dd'] },
+                                hours: { format: ['HH:mm'] },
+                                minutes: { format: ['HH:mm'] }
                             }
                         },
                         minorGridlines: {
                             units: {
-                                hours: { format: [""] },
-                                minutes: { format: [""] }
+                                hours: { format: [''] },
+                                minutes: { format: [''] }
                             }
                         }
                     },
                     vAxis: {
                         //format: "long",
-                        textStyle: { color: "#999" },
-                        gridlines: { color: "transparent" },
-                        viewWindowMode: "explicit",
+                        textStyle: { color: '#999' },
+                        gridlines: { color: 'transparent' },
+                        viewWindowMode: 'explicit',
                         viewWindow: {
                             max: this.props.max,
                             min: 0
                         }
                     },
-                    legend: "none",
+                    legend: 'none',
                     height: 200,
                     chartArea: {
-                        width: "100%",
-                        height: "80%"
+                        width: '100%',
+                        height: '80%'
                     },
-                    backgroundColor: "transparent",
-                    colors: ["#fff"]
+                    backgroundColor: 'transparent',
+                    colors: ['#fff']
                 }}/>
         );
     }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -39,7 +38,7 @@ namespace AppInsights
         {
             var httpClient = GetHttpClient(apikey);
             var url = string.Format(QueryUrl, appid);
-            var jsonRequest = JsonConvert.SerializeObject(new {query = queries[0] });
+            var jsonRequest = JsonConvert.SerializeObject(new { query = queries[0] });
             var response = await httpClient.PostAsync(url, new StringContent(jsonRequest, Encoding.UTF8, "application/json"));
             var responseJson = await response.Content.ReadAsStringAsync();
             var queryResult = JObject.Parse(responseJson);
@@ -53,7 +52,9 @@ namespace AppInsights
 
                 foreach (var column in columns)
                 {
-                    var columnType = Enum.TryParse<QueryResultType>(column["type"].Value<string>(), true, out var queryResultType) ? queryResultType : QueryResultType.String;
+                    var columnType = Enum.TryParse<QueryResultType>(column["type"].Value<string>(), true, out var queryResultType)
+                        ? queryResultType
+                        : QueryResultType.String;
                     tableResult.Columns.Add(new TableResultColumn(column["name"].Value<string>(), columnType));
                 }
 
@@ -93,14 +94,14 @@ namespace AppInsights
 
     public class TableResult
     {
-        public List<TableResultColumn> Columns { get; set; }
-        public List<List<dynamic>> Rows { get; set; }
-
         public TableResult()
         {
             Columns = new List<TableResultColumn>();
             Rows = new List<List<dynamic>>();
         }
+
+        public List<TableResultColumn> Columns { get; set; }
+        public List<List<dynamic>> Rows { get; set; }
     }
 
     public class TableResultColumn

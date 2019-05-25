@@ -1,6 +1,6 @@
-﻿import * as React from "react";
-import styled from "styled-components";
-import Loader from "../utils/Loader";
+﻿import * as React from 'react';
+import styled from 'styled-components';
+import Loader from '../utils/Loader';
 
 const QueryButtonContainer = styled.div`
     position: absolute;
@@ -109,7 +109,7 @@ export default class AnalyzerTable extends React.Component<Props, State> {
 
         this.state = {
             isLoading: false,
-            url: "",
+            url: '',
             items: null
         };
     }
@@ -147,11 +147,14 @@ export default class AnalyzerTable extends React.Component<Props, State> {
                             {items.table.columns.map(
                                 (column: any, columnIndex: number) =>
                                 <TableCell key={columnIndex}>
-                                    {columnIndex === 0 && (row.length - items.table.columns.length) === 2  &&
-                                            <QueryButtonContainer>
-                                                <QueryButton title={row[row.length - 2]} onClick={() => addCallback(row[row.length - 2])}>+</QueryButton>
-                                                <QueryButton title={row[row.length - 1]} onClick={() => addCallback(row[row.length - 1])}>-</QueryButton>
-                                            </QueryButtonContainer>}
+                                    {columnIndex === 0 &&
+                                        (row.length - items.table.columns.length) === 2 &&
+                                        <QueryButtonContainer>
+                                            <QueryButton title={row[row.length - 2]} onClick={() => addCallback(
+                                                row[row.length - 2])}>+</QueryButton>
+                                            <QueryButton title={row[row.length - 1]} onClick={() => addCallback(
+                                                row[row.length - 1])}>-</QueryButton>
+                                        </QueryButtonContainer>}
                                     {row[columnIndex]}
                                 </TableCell>)}
                         </TableRow>)}

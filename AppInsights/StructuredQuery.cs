@@ -6,7 +6,6 @@ namespace AppInsights
     {
         public StructuredQuery(IEnumerable<string> parts) : base(parts)
         {
-
         }
     }
 }

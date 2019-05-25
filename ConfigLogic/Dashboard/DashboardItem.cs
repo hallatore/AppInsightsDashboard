@@ -6,18 +6,6 @@ namespace ConfigLogic.Dashboard
 {
     public class DashboardItem
     {
-        public string Name { get; }
-        public ApiToken ApiToken { get; }
-        public string Query { get; }
-        public string Postfix { get; set; }
-        public ItemDuration Duration { get; set; }
-        public ItemTotal Total { get; set; }
-        public double MinChartValue { get; set; }
-        public double DisabledThreshold { get; set; }
-        public double WarningThreshold { get; set; }
-        public double ErrorThreshold { get; set; }
-        public int StatusSplitFactor { get; set; }
-        public Func<double, string> FormatValue { get; set; } = s => s.ToString("0");
         public Func<DashboardItem, double, TableResult, ItemStatus> GetStatus = DefaultGetStatus;
 
         public DashboardItem(string name, ApiToken apiToken, string query)
@@ -32,6 +20,19 @@ namespace ConfigLogic.Dashboard
             StatusSplitFactor = 4;
         }
 
+        public string Name { get; }
+        public ApiToken ApiToken { get; }
+        public string Query { get; }
+        public string Postfix { get; set; }
+        public ItemDuration Duration { get; set; }
+        public ItemTotal Total { get; set; }
+        public double MinChartValue { get; set; }
+        public double DisabledThreshold { get; set; }
+        public double WarningThreshold { get; set; }
+        public double ErrorThreshold { get; set; }
+        public int StatusSplitFactor { get; set; }
+        public Func<double, string> FormatValue { get; set; } = s => s.ToString("0");
+
         private static ItemStatus DefaultGetStatus(DashboardItem item, double value, TableResult table)
         {
             if (value <= item.DisabledThreshold)
@@ -44,7 +45,7 @@ namespace ConfigLogic.Dashboard
                 return ItemStatus.Normal;
             }
 
-            var tmpQuery = table.Rows.OrderByDescending(v => (DateTime)v[0]).AsEnumerable();
+            var tmpQuery = table.Rows.OrderByDescending(v => (DateTime) v[0]).AsEnumerable();
             double finalTmpValue;
 
             if (item.Duration.GetIntervalString().GetTimeSpan() < TimeSpan.FromMinutes(10))
@@ -60,11 +61,11 @@ namespace ConfigLogic.Dashboard
 
             if (item.Total == ItemTotal.Sum)
             {
-                finalTmpValue = tmpQuery.Sum(v => (double)v[1]);
+                finalTmpValue = tmpQuery.Sum(v => (double) v[1]);
             }
             else if (item.Total == ItemTotal.Average)
             {
-                finalTmpValue = tmpQuery.Average(v => (double)v[1]);
+                finalTmpValue = tmpQuery.Average(v => (double) v[1]);
             }
             else
             {
@@ -83,7 +84,11 @@ namespace ConfigLogic.Dashboard
             return ItemStatus.Normal;
         }
 
-        public static DashboardItem AddRequestPerMinute(ApiToken apiToken, string name = "Requests", Action<DashboardItem>? options = null, string whereQuery = "")
+        public static DashboardItem AddRequestPerMinute(
+            ApiToken apiToken,
+            string name = "Requests",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
         {
             var query = $@"
                 requests
@@ -104,7 +109,11 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
-        public static DashboardItem AddExceptionPerMinute(ApiToken apiToken, string name = "Exceptions", Action<DashboardItem>? options = null, string whereQuery = "")
+        public static DashboardItem AddExceptionPerMinute(
+            ApiToken apiToken,
+            string name = "Exceptions",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
         {
             var query = $@"
                 exceptions
@@ -124,7 +133,12 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
-        public static DashboardItem AddRequestResponseTime(ApiToken apiToken, string name = "Response time", Action<DashboardItem>? options = null, string whereQuery = "", DurationType durationType = DurationType.Percentile_90)
+        public static DashboardItem AddRequestResponseTime(
+            ApiToken apiToken,
+            string name = "Response time",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "",
+            DurationType durationType = DurationType.Percentile_90)
         {
             var averageString = "avg(duration)";
 
@@ -165,7 +179,11 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
-        public static DashboardItem AddFailedRequestsPercentage(ApiToken apiToken, string name = "Failed requests", Action<DashboardItem>? options = null, string whereQuery = "")
+        public static DashboardItem AddFailedRequestsPercentage(
+            ApiToken apiToken,
+            string name = "Failed requests",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
         {
             var query = $@"
                 requests
@@ -188,7 +206,11 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
-        public static DashboardItem AddExceptionsWhere(ApiToken apiToken, string name = "Exceptions", Action<DashboardItem>? options = null, string whereQuery = "")
+        public static DashboardItem AddExceptionsWhere(
+            ApiToken apiToken,
+            string name = "Exceptions",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
         {
             var query = $@"
                 exceptions
@@ -210,7 +232,11 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
-        public static DashboardItem AddWebTestsPercentage(ApiToken apiToken, string name = "Web tests", Action<DashboardItem>? options = null, string whereQuery = "")
+        public static DashboardItem AddWebTestsPercentage(
+            ApiToken apiToken,
+            string name = "Web tests",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
         {
             var query = $@"
                 availabilityResults

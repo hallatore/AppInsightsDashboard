@@ -32,20 +32,21 @@ export default class DashboardPage extends React.Component<Props, State> {
         this.state = {
             isLoading: false,
             groups: []
-        }
+        };
     }
 
-    public componentDidMount() {
+    componentDidMount() {
         this.ensureDataFetched();
     }
 
-    public render() {
+    render() {
         const { groups } = this.state;
 
         return (
             <Groups>
                 {groups.map((group, groupIndex) =>
-                    <GroupContainer key={groupIndex} dashboardId={this.props.match.params.dashboardId} group={group} groupIndex={groupIndex} />
+                    <GroupContainer key={groupIndex} dashboardId={this.props.match.params.dashboardId} group={group
+} groupIndex={groupIndex}/>
                 )}
             </Groups>
         );

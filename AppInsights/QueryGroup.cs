@@ -7,6 +7,12 @@ namespace AppInsights
 {
     public class QueryGroup
     {
+        private readonly Dictionary<string, StructuredQuery> _queries;
+        private readonly Dictionary<string, bool> _queriesUsed;
+        private readonly string _duration;
+
+        private StructuredQuery _query;
+
         public QueryGroup(
             StructuredQuery query,
             string duration)
@@ -16,7 +22,7 @@ namespace AppInsights
             _queries = new Dictionary<string, StructuredQuery>();
             _queriesUsed = new Dictionary<string, bool>();
 
-            foreach (var type in new [] { "requests", "exceptions", "availabilityResults" })
+            foreach (var type in new[] { "requests", "exceptions", "availabilityResults" })
             {
                 _queries.Add(type, QueryBuilder.Parse($" {type} | where timestamp > ago(1h)"));
                 _queriesUsed.Add(type, false);
@@ -53,11 +59,6 @@ namespace AppInsights
                 }
             }
         }
-
-        private StructuredQuery _query;
-        private string _duration;
-        private readonly Dictionary<string, StructuredQuery> _queries;
-        private readonly Dictionary<string, bool> _queriesUsed;
 
         public void AddWhere(string type, string part)
         {
@@ -135,11 +136,12 @@ namespace AppInsights
 
                         if (part.StartsWith("where") && (part.Contains("==") || part.Contains("!=")))
                         {
-                            tmpWhere.Add(part
-                                .Replace("where", "")
-                                .Replace("!=", "==")
-                                .Replace("!contains", "contains")
-                                .Trim());
+                            tmpWhere.Add(
+                                part
+                                    .Replace("where", "")
+                                    .Replace("!=", "==")
+                                    .Replace("!contains", "contains")
+                                    .Trim());
 
                             extrQuery.RemoveAt(i);
                             i--;

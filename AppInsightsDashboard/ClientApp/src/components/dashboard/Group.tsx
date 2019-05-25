@@ -40,7 +40,7 @@ interface Props {
 }
 
 export default class Group extends React.Component<Props> {
-    public render() {
+    render() {
         const { dashboardId, group, groupIndex, className } = this.props;
 
         return (
@@ -48,7 +48,8 @@ export default class Group extends React.Component<Props> {
                 <Title>{group.name}</Title>
                 <Items>
                     {group.items.map((item, itemIndex) =>
-                        <Item key={itemIndex} dashboardId={dashboardId} item={item} groupIndex={groupIndex} itemIndex={itemIndex} />
+                        <Item key={itemIndex} dashboardId={dashboardId} item={item} groupIndex={groupIndex} itemIndex={
+itemIndex}/>
                     )}
                 </Items>
             </DashboardGroup>

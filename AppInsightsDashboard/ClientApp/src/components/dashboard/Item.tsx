@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components';
 import Chart from '../utils/Chart';
 
-const ItemLink = styled(Link)<{ status: ItemStatus }>`
+const ItemLink = styled(Link) < { status: ItemStatus } >
+    `
     display: block;
     padding: 10px;
     padding-bottom: 0;
@@ -23,10 +24,10 @@ const ItemLink = styled(Link)<{ status: ItemStatus }>`
         margin-right: 0;
     }
 
-    color: ${props => props.status === ItemStatus.Disabled ? "#333" : null};
-    color: ${props => props.status === ItemStatus.Warning ? "yellow" : null};
-    color: ${props => props.status === ItemStatus.Error ? "white" : null};
-    animation: ${props => props.status === ItemStatus.Error ? "BlinkAnimation 2s infinite" : null};
+    color: ${props => props.status === ItemStatus.Disabled ? '#333' : null};
+    color: ${props => props.status === ItemStatus.Warning ? 'yellow' : null};
+    color: ${props => props.status === ItemStatus.Error ? 'white' : null};
+    animation: ${props => props.status === ItemStatus.Error ? 'BlinkAnimation 2s infinite' : null};
 
     @keyframes BlinkAnimation {
         0%, 33% {
@@ -62,7 +63,8 @@ const Value = styled.div`
     text-shadow: 0px 1px 3px #222;
 `;
 
-const ItemChart = styled(Chart)<{ status: ItemStatus }>`
+const ItemChart = styled(Chart) < { status: ItemStatus } >
+    `
     opacity: 0.2;
     margin-top: 20px;
     opacity: ${props => props.status === ItemStatus.Warning ? 1 : null};
@@ -108,26 +110,29 @@ export default class Item extends React.Component<Props, State> {
 
         this.state = {
             isLoading: false,
-            value: "",
+            value: '',
             chartValues: [],
             chartMax: 0,
             status: ItemStatus.Normal
-        }
+        };
     }
-    
-    public componentDidMount() {
+
+    componentDidMount() {
         this.ensureDataFetched();
     }
 
-    public render() {
+    render() {
         const { dashboardId, item, groupIndex, itemIndex } = this.props;
         const { value, status, chartValues, chartMax } = this.state;
 
         return (
             <ItemLink status={status} to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>
-                <ItemChart width="250" height="100" status={status} color="#555" chartValues={chartValues} chartMax={chartMax} />
+                <ItemChart width="250" height="100" status={status} color="#555" chartValues={chartValues} chartMax={
+chartMax}/>
                 <ItemTitle>{item.name}</ItemTitle>
-                <Value>{value}<ValuePostfix>{item.postfix}</ValuePostfix></Value>
+                <Value>
+                    {value}<ValuePostfix>{item.postfix}</ValuePostfix>
+                </Value>
             </ItemLink>
         );
     }

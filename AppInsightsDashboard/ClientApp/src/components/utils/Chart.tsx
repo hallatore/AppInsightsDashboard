@@ -1,12 +1,19 @@
-﻿import * as React from "react";
-import styled from "styled-components";
+﻿import * as React from 'react';
+import styled from 'styled-components';
 
 const ChartCanvas = styled.canvas`
     display: block;
     width: 100%;
 `;
 
-export default class Chart extends React.Component<{ width: string, height: string, chartValues: number[], chartMax: number, style?: object | undefined, color?: string | undefined }> {
+export default class Chart extends React.Component<{
+    width: string,
+    height: string,
+    chartValues: number[],
+    chartMax: number,
+    style?: object | undefined,
+    color?: string | undefined
+}> {
 
     componentDidMount() {
         this.drawChart();
@@ -19,7 +26,7 @@ export default class Chart extends React.Component<{ width: string, height: stri
     private drawChart() {
         const canvas = this.chartRef.current;
         const { chartValues, chartMax, color } = this.props;
-        this.renderChart(canvas, chartValues, chartMax, color || "#ccc");
+        this.renderChart(canvas, chartValues, chartMax, color || '#ccc');
     }
 
     private renderChart(canvas: HTMLCanvasElement | null, chartValues: number[], chartMax: number, color: string) {
@@ -28,7 +35,7 @@ export default class Chart extends React.Component<{ width: string, height: stri
         }
 
         if (canvas.getContext) {
-            const ctx = canvas.getContext("2d");
+            const ctx = canvas.getContext('2d');
 
             if (ctx == null) {
                 return;
@@ -55,6 +62,6 @@ export default class Chart extends React.Component<{ width: string, height: stri
     private chartRef = React.createRef<HTMLCanvasElement>();
 
     render() {
-        return (<ChartCanvas {...this.props} ref={this.chartRef} />);
+        return (<ChartCanvas {...this.props} ref={this.chartRef}/>);
     }
 }

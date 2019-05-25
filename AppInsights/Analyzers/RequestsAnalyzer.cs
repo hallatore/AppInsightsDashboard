@@ -28,7 +28,8 @@ namespace AppInsights.Analyzers
             }
             else
             {
-                var requestsQuery = QueryBuilder.Parse($@"
+                var requestsQuery = QueryBuilder.Parse(
+                    $@"
                 requests
                 | where timestamp > ago(1h)
                 {whereQuery}");

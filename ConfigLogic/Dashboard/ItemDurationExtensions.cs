@@ -27,6 +27,7 @@ namespace ConfigLogic.Dashboard
                     throw new ArgumentOutOfRangeException(nameof(duration), duration, null);
             }
         }
+
         public static string GetIntervalString(this ItemDuration duration, int splits = 120)
         {
             var minutes = Math.Max(duration.GetString().GetTimeSpan().TotalMinutes / splits, 1);

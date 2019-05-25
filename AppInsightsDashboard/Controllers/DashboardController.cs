@@ -30,9 +30,10 @@ namespace AppInsightsDashboard.Controllers
             }
 
             return _config.Dashboards[dashboardId]
-                .Select(group => new DashboardGroup(
-                    group.Key,
-                    group.Value.Select(item => new DashboardItem(item.Name, item.Postfix))
+                .Select(
+                    group => new DashboardGroup(
+                        group.Key,
+                        group.Value.Select(item => new DashboardItem(item.Name, item.Postfix))
                     )
                 );
         }
@@ -63,7 +64,7 @@ namespace AppInsightsDashboard.Controllers
         public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts)
         {
             var durationString = duration.GetString();
-            var intervalString = duration.GetIntervalString(120);
+            var intervalString = duration.GetIntervalString();
             var dashboard = _config.Dashboards[dashboardId];
             var groupKey = dashboard.Keys.ToList()[groupIndex];
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
@@ -75,9 +76,10 @@ namespace AppInsightsDashboard.Controllers
             var values = await GetChartValues(item, queryGroup.ToString());
 
             // Fallback when all values are errors
-            if ((queryGroup.IsRequestsQuery() || queryGroup.IsExceptionsQuery()) && 
-                values.Count > 4 && 
-                (int)values.OrderByDescending(v => v.Value).Skip(values.Count / 2).Take(values.Count / 2).Max(v => v.Value) == (int)values.OrderByDescending(v => v.Value).Skip(values.Count / 2).Take(values.Count / 2).Average(v => v.Value))
+            if ((queryGroup.IsRequestsQuery() || queryGroup.IsExceptionsQuery()) &&
+                values.Count > 4 &&
+                (int) values.OrderByDescending(v => v.Value).Skip(values.Count / 2).Take(values.Count / 2).Max(v => v.Value) ==
+                (int) values.OrderByDescending(v => v.Value).Skip(values.Count / 2).Take(values.Count / 2).Average(v => v.Value))
             {
                 queryGroup.RemoveProjectAndSummarize();
                 queryGroup.Append(QueryBuilder.Parse($"summarize _count=sum(itemCount) by bin(timestamp, {intervalString}) | project timestamp, _count"));
@@ -148,7 +150,7 @@ namespace AppInsightsDashboard.Controllers
         private async Task<long> GetCountQuery(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts)
         {
             var durationString = duration.GetString();
-            var intervalString = duration.GetIntervalString(120);
+            var intervalString = duration.GetIntervalString();
             var dashboard = _config.Dashboards[dashboardId];
             var groupKey = dashboard.Keys.ToList()[groupIndex];
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
@@ -181,7 +183,9 @@ namespace AppInsightsDashboard.Controllers
         private List<(DateTime Date, double Value)> FillEmptySlotsInTimeRange(List<RowItem> items, TimeSpan duration, TimeSpan interval)
         {
             if (items?.Any() == false)
+            {
                 return new List<(DateTime, double)>();
+            }
 
             var dictionary = items.ToDictionary(item => item.Date, item => item.Value);
             var maxDate = items.Max(c => c.Date);
@@ -196,7 +200,9 @@ namespace AppInsightsDashboard.Controllers
             while (minDate <= maxDate)
             {
                 if (!dictionary.ContainsKey(minDate))
+                {
                     dictionary.Add(minDate, 0);
+                }
 
                 minDate += interval;
             }
@@ -221,7 +227,9 @@ namespace AppInsightsDashboard.Controllers
         private List<double> TransformQuery(List<RowItem> items, TimeSpan duration, TimeSpan interval)
         {
             if (items?.Any() == false)
+            {
                 return new List<double>();
+            }
 
             var dictionary = items.ToDictionary(item => item.Date, item => item.Value);
             var maxDate = items.Max(c => c.Date);
@@ -236,7 +244,9 @@ namespace AppInsightsDashboard.Controllers
             while (minDate <= maxDate)
             {
                 if (!dictionary.ContainsKey(minDate))
+                {
                     dictionary.Add(minDate, 0);
+                }
 
                 minDate += interval;
             }
@@ -250,37 +260,37 @@ namespace AppInsightsDashboard.Controllers
 
     public class DashboardGroup
     {
-        public string Name { get; }
-        public IEnumerable<DashboardItem> Items { get; }
-
         public DashboardGroup(string name, IEnumerable<DashboardItem> items)
         {
             Name = name;
             Items = items;
         }
+
+        public string Name { get; }
+        public IEnumerable<DashboardItem> Items { get; }
     }
 
     public class DashboardItem
     {
-        public string Name { get; }
-        public string Postfix { get; }
-
         public DashboardItem(string name, string postfix)
         {
             Name = name;
             Postfix = postfix;
         }
+
+        public string Name { get; }
+        public string Postfix { get; }
     }
 
     public class RowItem
     {
-        public DateTime Date { get; }
-        public double Value { get; }
-
         public RowItem(DateTime date, double value)
         {
             Date = date;
             Value = value;
         }
+
+        public DateTime Date { get; }
+        public double Value { get; }
     }
 }

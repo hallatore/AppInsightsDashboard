@@ -28,7 +28,8 @@ namespace AppInsights.Analyzers
             }
             else
             {
-                var requestsQuery = QueryBuilder.Parse($@"
+                var requestsQuery = QueryBuilder.Parse(
+                    $@"
                 requests
                 | where timestamp > ago(1h)
                 {whereQuery}");
@@ -53,7 +54,7 @@ namespace AppInsights.Analyzers
                 row.Add($"where url == '{row[0]}'");
                 row.Add($"where url != '{row[0]}'");
             }
-            
+
             return new TableAnalyzerResult("Urls", true, result);
         }
     }

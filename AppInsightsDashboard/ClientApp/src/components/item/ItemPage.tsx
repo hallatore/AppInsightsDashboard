@@ -1,9 +1,9 @@
-import * as React from "react";
-import styled from "styled-components";
-import { RouteComponentProps } from "react-router";
+import * as React from 'react';
+import styled from 'styled-components';
+import { RouteComponentProps } from 'react-router';
 import AnalyzerTable from './AnalyzerTable';
 import Loader from '../utils/Loader';
-import Chart, { ChartValue } from "../utils/GoogleLineChart";
+import Chart, { ChartValue } from '../utils/GoogleLineChart';
 
 const Container = styled.div`
     max-width: 1600px;
@@ -60,12 +60,12 @@ const DurationButton = styled.button < { duration: ItemDuration, currentDuration
         background: #777;
         color: #fff;
 
-        background: ${props => props.duration === props.currentDuration ? "#fff" : null};
-        color: ${props => props.duration === props.currentDuration ? "#000" : null};
+        background: ${props => props.duration === props.currentDuration ? '#fff' : null};
+        color: ${props => props.duration === props.currentDuration ? '#000' : null};
     }
 
-    background: ${props => props.duration === props.currentDuration ? "#fff" : null};
-    color: ${props => props.duration === props.currentDuration ? "#000" : null};
+    background: ${props => props.duration === props.currentDuration ? '#fff' : null};
+    color: ${props => props.duration === props.currentDuration ? '#000' : null};
 `;
 
 const QueryParts = styled.div`
@@ -164,7 +164,7 @@ export default class ItemPage extends React.Component<Props, State> {
             isLoading: false,
             name: '',
             duration: historyState.duration || ItemDuration.OneHour,
-            query: "",
+            query: '',
             queryParts: historyState.queryParts || [],
             chartValues: [],
             chartMax: 0,
@@ -197,13 +197,13 @@ export default class ItemPage extends React.Component<Props, State> {
                     <MainSplitContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
-                            <ItemChart values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }} />
+                            <ItemChart values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} />
+                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} /> 
+                            <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                     </MainSplitContainer>
                     <SecondarySplitContainer>
@@ -216,13 +216,13 @@ export default class ItemPage extends React.Component<Props, State> {
                             <Query style={{ opacity: isLoading ? 0.3 : 1 }}>{query}</Query>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} />
+                            <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('RequestExceptionsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} />
+                            <AnalyzerTable url={this.getAnalyzerUrl('RequestExceptionsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('StacktraceAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)} />
+                            <AnalyzerTable url={this.getAnalyzerUrl('StacktraceAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         {count > 0 && !isLoading && <BrowseButton>{count} Operations</BrowseButton>}
                     </SecondarySplitContainer>
@@ -254,7 +254,7 @@ export default class ItemPage extends React.Component<Props, State> {
         const dashboardId = this.props.match.params.dashboardId;
         const groupIndex = this.props.match.params.groupIndex;
         const itemIndex = this.props.match.params.itemIndex;
-        const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join("");
+        const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
 
         fetch(`/api/Dashboard/${dashboardId}/Details/${groupIndex}/${itemIndex}?duration=${this.state.duration}${queryParts}`)
             .then(response => response.json() as Promise<any>)
@@ -283,7 +283,7 @@ export default class ItemPage extends React.Component<Props, State> {
         const dashboardId = this.props.match.params.dashboardId;
         const groupIndex = this.props.match.params.groupIndex;
         const itemIndex = this.props.match.params.itemIndex;
-        const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join("");
+        const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
         return `/api/Dashboard/${dashboardId}/Analyzer/${groupIndex}/${itemIndex}/${analyzerName}?duration=${this.state.duration}${queryParts}`;
     }
 

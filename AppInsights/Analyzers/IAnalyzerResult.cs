@@ -14,11 +14,6 @@
 
     public class TableAnalyzerResult : IAnalyzerResult
     {
-        public string Name { get; }
-        public AnalyzerResultType Type { get; }
-        public bool Success { get; }
-        public TableResult Table { get; }
-
         public TableAnalyzerResult(string name, bool success, TableResult table)
         {
             Name = name;
@@ -26,5 +21,10 @@
             Type = AnalyzerResultType.Table;
             Table = table;
         }
+
+        public TableResult Table { get; }
+        public string Name { get; }
+        public AnalyzerResultType Type { get; }
+        public bool Success { get; }
     }
 }
