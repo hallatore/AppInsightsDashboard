@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import styled from "styled-components";
-import Loader from '../utils/Loader';
+import Loader from "../utils/Loader";
 
 const QueryButtonContainer = styled.div`
     position: absolute;
@@ -12,20 +12,24 @@ const QueryButtonContainer = styled.div`
 const QueryButton = styled.button`
     border: 0;
     height: 20px;
-    width: 30px;
+    width: 20px;
     padding: 0;
     text-align: center;
     font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    line-height: 1;
+    font-size: 18px;
+    line-height: 0px;
     cursor: pointer;
-    background: #555;
+    background: #222;
     color: #fff;
-    margin-right: 2px;
+    margin-right: 7px;
+    border-radius: 50%;
+    width: 20px;
+    border: 1px solid #777;
 
     &:hover {
-        background: #777;
-        color: #fff;
+        border-color: #fff;
+        background: #fff;
+        color: #000;
     }
 `;
 
@@ -105,7 +109,7 @@ export default class AnalyzerTable extends React.Component<Props, State> {
 
         this.state = {
             isLoading: false,
-            url: '',
+            url: "",
             items: null
         };
     }
@@ -128,7 +132,7 @@ export default class AnalyzerTable extends React.Component<Props, State> {
 
         return (
             <React.Fragment>
-                {isLoading && <Loader />}
+                {isLoading && <Loader/>}
                 <Table cellSpacing="0" style={{ opacity: isLoading ? 0.3 : 1 }}>
                     <thead>
                     <tr>
@@ -145,8 +149,8 @@ export default class AnalyzerTable extends React.Component<Props, State> {
                                 <TableCell key={columnIndex}>
                                     {columnIndex === 0 && (row.length - items.table.columns.length) === 2  &&
                                             <QueryButtonContainer>
-                                                <QueryButton onClick={() => addCallback(row[row.length - 2])}>+</QueryButton>
-                                                <QueryButton onClick={() => addCallback(row[row.length - 1])}>-</QueryButton>
+                                                <QueryButton title={row[row.length - 2]} onClick={() => addCallback(row[row.length - 2])}>+</QueryButton>
+                                                <QueryButton title={row[row.length - 1]} onClick={() => addCallback(row[row.length - 1])}>-</QueryButton>
                                             </QueryButtonContainer>}
                                     {row[columnIndex]}
                                 </TableCell>)}
