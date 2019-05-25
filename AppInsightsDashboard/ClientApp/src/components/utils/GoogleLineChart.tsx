@@ -69,8 +69,9 @@ export default class GoogleLineChart extends React.Component<{
                     legend: 'none',
                     height: 200,
                     chartArea: {
+                        top: '0',
                         width: '100%',
-                        height: '80%'
+                        height: '90%'
                     },
                     backgroundColor: 'transparent',
                     colors: ['#fff']
