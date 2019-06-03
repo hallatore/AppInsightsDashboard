@@ -38,41 +38,40 @@ const ItemLink = styled(Link) < { status: ItemStatus } >
 `;
 
 const ItemTitle = styled.h3`
-    font-size: 25px;
+    font-size: 18px;
     font-weight: 400;
     padding: 0;
     margin: 0;
     overflow: hidden;
     white-space: nowrap;
     position: absolute;
-    top: 10px;
+    top: 5px;
     left: 0;
     right: 0;
     text-align: center;
 `;
 
 const Value = styled.div`
-    font-size: 72px;
+    font-size: 48px;
     line-height: 1;
     white-space: nowrap;
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     left: 0;
     right: 0;
     text-align: center;
     text-shadow: 0px 1px 3px #222;
 `;
 
-const ItemChart = styled(Chart) < { status: ItemStatus } >
-    `
-    opacity: 0.2;
+const ItemChart = styled(Chart) < { status: ItemStatus } >`
+    opacity: 0.4;
     margin-top: 20px;
     opacity: ${props => props.status === ItemStatus.Warning ? 1 : null};
     opacity: ${props => props.status === ItemStatus.Error ? 1 : null};
 `;
 
 const ValuePostfix = styled.span`
-    font-size: 32px;
+    font-size: 18px;
     font-weight: 300;
     padding-left: 3px;
 `;
@@ -127,7 +126,7 @@ export default class Item extends React.Component<Props, State> {
 
         return (
             <ItemLink status={status} to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>
-                <ItemChart width="250" height="100" status={status} color="#555" chartValues={chartValues} chartMax={
+                <ItemChart width="150" height="50" status={status} color="#555" chartValues={chartValues} chartMax={
 chartMax}/>
                 <ItemTitle>{item.name}</ItemTitle>
                 <Value>

@@ -8,12 +8,12 @@ const DashboardGroup = styled.li`
 `;
 
 const Title = styled.h2`
-    font-size: 25px;
+    font-size: 16px;
     font-weight: 400;
     margin: 0;
     padding: 0;
-    padding-left: 10px;
-    height: 40px;
+    padding-left: 5px;
+    height: 25px;
     display: flex;
     justify-content: flex-end;
     flex-direction: column;

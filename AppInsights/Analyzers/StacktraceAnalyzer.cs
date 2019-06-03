@@ -45,17 +45,18 @@ namespace AppInsights.Analyzers
             var result = await AppInsightsClient.GetTableQuery(appid, apikey, queryString);
             result.Columns[0].Name = "File";
             result.Columns[1].Name = "Exception";
-            result.Columns[2].Name = "Line";
             result.Columns[3].Name = "Count";
+            result.Columns.RemoveAt(2);
 
             foreach (var row in result.Rows)
             {
                 row.Add($"where type == '{row[1]}'");
                 row.Add($"where type != '{row[1]}'");
 
-                row[0] = Path.GetFileName(row[0]);
+                row[0] = $"{Path.GetFileName(row[0])} ({row[2]})";
                 var exception = (string) row[1];
                 row[1] = exception.Substring(exception.LastIndexOf('.') + 1);
+                row.RemoveAt(2);
             }
 
             return new TableAnalyzerResult("Stacktraces", true, result);

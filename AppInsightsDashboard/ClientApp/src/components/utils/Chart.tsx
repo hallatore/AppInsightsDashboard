@@ -48,13 +48,13 @@ export default class Chart extends React.Component<{
                 return;
             }
 
-            const spacing = 2;
+            const spacing = 0.5;
             const width = canvas.width / chartValues.length;
             const height = canvas.height;
 
             for (let i = 0; i < chartValues.length; i++) {
                 const itemHeight = height / chartMax * chartValues[i];
-                ctx.fillRect(i * width, height - itemHeight, Math.max(width - spacing, 2), itemHeight);
+                ctx.fillRect(i * width, height - itemHeight, Math.max(width - spacing, spacing), itemHeight);
             }
         }
     }

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router';
 import Group, { DashboardGroup } from './Group';
 
-const itemSpacing = '40px';
+const itemSpacing = '25px';
 
 const Groups = styled.ul`
     list-style: none;
