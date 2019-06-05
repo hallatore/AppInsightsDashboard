@@ -17,9 +17,9 @@ namespace AppInsights.Analyzers
 
             var whereQuery = @"
                 | project operation_Id, itemCount, type, stack = details[0].parsedStack[0]
-                | project operation_Id, itemCount, filename = stack.fileName, type, line = stack.line
+                | project operation_Id, itemCount, filename = extract('([^\\\\/]+)$', 1, tostring(stack.fileName)), type, line = tostring(stack.line)
                 | where filename != ''
-                | summarize sum(itemCount) by tostring(filename), type, tostring(line)
+                | summarize sum(itemCount) by filename, type, line
                 | order by sum_itemCount";
 
             if (isExceptionsQuery)
@@ -53,7 +53,7 @@ namespace AppInsights.Analyzers
                 row.Add($"where type == '{row[1]}'");
                 row.Add($"where type != '{row[1]}'");
 
-                row[0] = $"{Path.GetFileName(row[0])} ({row[2]})";
+                row[0] = $"{row[0]} ({row[2]})";
                 var exception = (string) row[1];
                 row[1] = exception.Substring(exception.LastIndexOf('.') + 1);
                 row.RemoveAt(2);
