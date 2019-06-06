@@ -16,9 +16,8 @@ namespace AppInsights.Analyzers
             QueryGroup queryGroup;
 
             var whereQuery = @"
-                | project operation_Id, itemCount, type, stack = details[0].parsedStack[0]
-                | project operation_Id, itemCount, filename = extract('([^\\\\/]+)$', 1, tostring(stack.fileName)), type, line = tostring(stack.line)
-                | where filename != ''
+                | where details[0].parsedStack[0].fileName != ''
+                | project operation_Id, itemCount, filename = extract('([^\\\\/]+)$', 1, tostring(details[0].parsedStack[0].fileName)), type, line = tostring(details[0].parsedStack[0].line)
                 | summarize sum(itemCount) by filename, type, line
                 | order by sum_itemCount";
 
@@ -50,8 +49,8 @@ namespace AppInsights.Analyzers
 
             foreach (var row in result.Rows)
             {
-                row.Add($"where type == '{row[1]}'");
-                row.Add($"where type != '{row[1]}'");
+                row.Add($"where details[0].parsedStack[0].fileName endswith '{row[0]}' and details[0].parsedStack[0].line == {row[2]}");
+                row.Add($"where details[0].parsedStack[0].fileName !endswith '{row[0]}'");
 
                 row[0] = $"{row[0]} ({row[2]})";
                 var exception = (string) row[1];
