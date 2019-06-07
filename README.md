@@ -12,8 +12,10 @@ AppInsightsDashboard is a dashboard for Application Insights.
 ### Configration
 You need to create atleast one config for your project.
 
-[Config.cs](AppInsightsDashboard/Configs/README.md)
+[Read more about configuration](AppInsightsDashboard/Configs/README.md)
 
 ## Screenshots
 
 ![Dashboard](https://i.imgur.com/WCb8KcS.png)
+
+![Details](https://imgur.com/RbA2dU0.png)
