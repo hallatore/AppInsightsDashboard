@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const ChartCanvas = styled.canvas`
     display: block;
-    width: 100%;
+    width: auto;
 `;
 
 export default class Chart extends React.Component<{

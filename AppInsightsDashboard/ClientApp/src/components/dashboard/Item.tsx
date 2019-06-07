@@ -8,7 +8,7 @@ const ItemLink = styled(Link) < { status: ItemStatus } >
     display: block;
     padding: 10px;
     padding-bottom: 0;
-    margin-right: 5px;
+    margin-right: 10px;
     position: relative;
     background: #222;
     color: inherit;
@@ -101,6 +101,7 @@ interface State {
     chartValues: number[];
     chartMax: number;
     status: ItemStatus;
+    intervalId?: NodeJS.Timeout;
 }
 
 export default class Item extends React.Component<Props, State> {
@@ -118,6 +119,14 @@ export default class Item extends React.Component<Props, State> {
 
     componentDidMount() {
         this.ensureDataFetched();
+        const intervalId = setInterval(this.ensureDataFetched.bind(this), 120000 + (30000 * Math.random()));
+        this.setState({ intervalId: intervalId });
+    }
+
+    componentWillUnmount() {
+        if (this.state.intervalId != null) {
+            clearInterval(this.state.intervalId);
+        }
     }
 
     render() {
@@ -150,6 +159,13 @@ chartMax}/>
                     status: data.status,
                     isLoading: false
                 });
-            });
+            })
+            .catch(error => this.setState({
+                isLoading: false,
+                value: '',
+                chartValues: [],
+                chartMax: 0,
+                status: ItemStatus.Normal
+            }));
     }
 }

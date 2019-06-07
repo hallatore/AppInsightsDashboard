@@ -5,6 +5,7 @@ import Item, { DashboardItem } from './Item';
 const DashboardGroup = styled.li`
     display: block;
     color: #555;
+    margin-bottom: 5px;
 `;
 
 const Title = styled.h2`
@@ -12,8 +13,7 @@ const Title = styled.h2`
     font-weight: 400;
     margin: 0;
     padding: 0;
-    padding-left: 5px;
-    height: 25px;
+    padding: 2px 5px;
     display: flex;
     justify-content: flex-end;
     flex-direction: column;
