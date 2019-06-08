@@ -23,6 +23,7 @@ type Props = RouteComponentProps<{ dashboardId: string }>;
 interface State {
     groups: DashboardGroup[];
     isLoading: boolean;
+    intervalId?: NodeJS.Timeout;
 }
 
 export default class DashboardPage extends React.Component<Props, State> {
@@ -37,6 +38,14 @@ export default class DashboardPage extends React.Component<Props, State> {
 
     componentDidMount() {
         this.ensureDataFetched();
+        const intervalId = setInterval(this.ensureDataFetched.bind(this), 10 * 60 * 1000);
+        this.setState({ intervalId: intervalId });
+    }
+
+    componentWillUnmount() {
+        if (this.state.intervalId != null) {
+            clearInterval(this.state.intervalId);
+        }
     }
 
     render() {
@@ -45,8 +54,11 @@ export default class DashboardPage extends React.Component<Props, State> {
         return (
             <Groups>
                 {groups.map((group, groupIndex) =>
-                    <GroupContainer key={groupIndex} dashboardId={this.props.match.params.dashboardId} group={group
-} groupIndex={groupIndex}/>
+                    <GroupContainer
+                        key={groupIndex}
+                        dashboardId={this.props.match.params.dashboardId}
+                        group={group}
+                        groupIndex={groupIndex} />
                 )}
             </Groups>
         );
@@ -59,6 +71,10 @@ export default class DashboardPage extends React.Component<Props, State> {
             .then(response => response.json() as Promise<DashboardGroup[]>)
             .then(data => {
                 this.setState({ groups: data, isLoading: false });
-            });
+            })
+            .catch(error => this.setState({
+                isLoading: false,
+                groups: []
+            }));
     }
 }

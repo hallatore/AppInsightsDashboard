@@ -177,6 +177,6 @@ export default class AnalyzerTable extends React.Component<Props, State> {
         fetch(this.props.url)
             .then(response => response.json() as Promise<any>)
             .then(data => this.setState({ items: data, isLoading: false }))
-            .catch(error => this.setState({ isLoading: false }));
+            .catch(error => this.setState({ items: null, isLoading: false }));
     }
 }

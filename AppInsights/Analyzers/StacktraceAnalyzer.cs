@@ -50,7 +50,7 @@ namespace AppInsights.Analyzers
             foreach (var row in result.Rows)
             {
                 row.Add($"where details[0].parsedStack[0].fileName endswith '{row[0]}' and details[0].parsedStack[0].line == {row[2]}");
-                row.Add($"where details[0].parsedStack[0].fileName !endswith '{row[0]}'");
+                row.Add($"where details[0].parsedStack[0].fileName !endswith '{row[0]}' or details[0].parsedStack[0].line != {row[2]}");
 
                 row[0] = $"{row[0]} ({row[2]})";
                 var exception = (string) row[1];
