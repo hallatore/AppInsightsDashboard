@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router';
+import { Link } from 'react-router-dom'
 import AnalyzerTable from './AnalyzerTable';
 import Loader from '../utils/Loader';
 import Chart, { ChartValue } from '../utils/GoogleLineChart';
@@ -131,6 +132,11 @@ const BrowseButton = styled.button`
     }
 `;
 
+const BackLink = styled(Link)`
+    color: inherit;
+    text-decoration: none;
+`;
+
 enum ItemDuration {
     OneHour = 0,
     SixHours = 1,
@@ -182,7 +188,7 @@ export default class ItemPage extends React.Component<Props, State> {
         return (
             <Container>
                 <Header>
-                    <Title>{name}&nbsp;</Title>
+                    <Title><BackLink to={`/${this.props.match.params.dashboardId}`}>Overview</BackLink> / {name}&nbsp;</Title>
                     <div>
                         <DurationButton duration={ItemDuration.OneHour} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.OneHour)}>1 hour</DurationButton>
                         <DurationButton duration={ItemDuration.SixHours} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.SixHours)}>6 hours</DurationButton>

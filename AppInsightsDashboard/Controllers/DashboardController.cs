@@ -97,7 +97,7 @@ namespace AppInsightsDashboard.Controllers
 
             return new
             {
-                Name = $"{groupKey} / {item.Name}",
+                Name = $"{groupKey} - {item.Name}",
                 ChartValues = chart.Select(c => new { c.Date, c.Value }),
                 ChartMax = max,
                 Query = queryGroup.ToString(),
