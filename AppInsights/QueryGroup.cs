@@ -135,7 +135,7 @@ namespace AppInsights
                     {
                         var part = extrQuery[i];
 
-                        if (part.StartsWith("where") && (part.Contains("==") || part.Contains("!=")))
+                        if (part.StartsWith("where") && (part.Contains("==") || part.Contains("!=") || part.Contains("!contains")))
                         {
                             tmpWhere.Add(
                                 part

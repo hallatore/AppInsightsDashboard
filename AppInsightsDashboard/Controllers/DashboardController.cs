@@ -118,6 +118,8 @@ namespace AppInsightsDashboard.Controllers
                     return await RequestsAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
                 case "UrlAnalyzer":
                     return await UrlAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                case "DomainAnalyzer":
+                    return await DomainAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
                 case "StatusCodesAnalyzer":
                     return await StatusCodesAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
                 case "RequestExceptionsAnalyzer":

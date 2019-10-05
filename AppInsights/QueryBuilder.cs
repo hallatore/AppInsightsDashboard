@@ -8,7 +8,7 @@ namespace AppInsights
     {
         public static StructuredQuery Parse(string query)
         {
-            var parts = query.Split("|", StringSplitOptions.RemoveEmptyEntries)
+            var parts = query.Split("| ", StringSplitOptions.RemoveEmptyEntries)
                 .Select(part => part.Trim())
                 .Where(part => !string.IsNullOrWhiteSpace(part));
 

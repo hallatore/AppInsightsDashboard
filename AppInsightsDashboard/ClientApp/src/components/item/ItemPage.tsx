@@ -209,6 +209,9 @@ export default class ItemPage extends React.Component<Props, State> {
                             <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
+                            <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                        </AreaContainer>
+                        <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                     </MainSplitContainer>
