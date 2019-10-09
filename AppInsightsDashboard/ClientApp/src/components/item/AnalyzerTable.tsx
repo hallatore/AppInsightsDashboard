@@ -7,6 +7,10 @@ const QueryButtonContainer = styled.div`
     top: calc(50% - 10px);
     right: -5px;
     display: none;
+
+    @media(max-width: 1024px) {
+        display: block;
+    }
 `;
 
 const QueryButton = styled.button`
@@ -53,6 +57,10 @@ const TableHead = styled.th`
 
     &:last-child {
         padding-right: 15px;
+    }
+
+    @media(max-width: 1024px) {
+        font-size: 9px;
     }
 `;
 

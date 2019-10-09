@@ -28,7 +28,7 @@ namespace ConfigLogic.Dashboard
             }
         }
 
-        public static string GetIntervalString(this ItemDuration duration, int splits = 120)
+        public static string GetIntervalString(this ItemDuration duration, int splits = 30)
         {
             var minutes = Math.Max(duration.GetString().GetTimeSpan().TotalMinutes / splits, 1);
             return $"{minutes:0}m";

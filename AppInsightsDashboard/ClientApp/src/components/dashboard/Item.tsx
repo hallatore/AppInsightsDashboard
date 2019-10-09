@@ -3,16 +3,23 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components';
 import Chart from '../utils/Chart';
 
-const ItemLink = styled(Link) < { status: ItemStatus } >
-    `
+const ItemLink = styled(Link)<{status: ItemStatus}>`
     display: block;
     padding: 10px;
     padding-bottom: 0;
-    margin-right: 10px;
+    margin-right: 15px;
+    margin-bottom: 15px;
     position: relative;
     background: #222;
-    color: inherit;
+    color: #555;
     text-decoration: none;
+    flex-grow: 1;
+    min-width: 170px;
+        
+    @media(max-width: 500px) {
+        min-width: auto;
+        max-width: 50%;
+    }
 
     &:hover {
         background: #333;
@@ -22,6 +29,10 @@ const ItemLink = styled(Link) < { status: ItemStatus } >
 
     &:last-child {
         margin-right: 0;
+        
+        @media(max-width: 1024px) {
+            margin-right: 10px;
+        }
     }
 
     color: ${props => props.status === ItemStatus.Disabled ? '#333' : null};
@@ -68,12 +79,26 @@ const ItemChart = styled(Chart) < { status: ItemStatus } >`
     margin-top: 20px;
     opacity: ${props => props.status === ItemStatus.Warning ? 1 : null};
     opacity: ${props => props.status === ItemStatus.Error ? 1 : null};
+    width: 100%;
+    height: 50px;
 `;
 
 const ValuePostfix = styled.span`
     font-size: 18px;
     font-weight: 300;
     padding-left: 3px;
+`;
+
+const GroupTitle = styled.div`
+    position: absolute;
+    top: -13px;
+    color: #555;
+    font-size: 10px;
+    text-transform: uppercase;
+`;
+
+const GroupTitleGray = styled(GroupTitle)`    
+    color: #222;
 `;
 
 export interface DashboardItem {
@@ -91,6 +116,7 @@ enum ItemStatus {
 interface Props {
     dashboardId: string;
     item: DashboardItem;
+    groupName: string;
     groupIndex: number;
     itemIndex: number;
 }
@@ -130,13 +156,13 @@ export default class Item extends React.Component<Props, State> {
     }
 
     render() {
-        const { dashboardId, item, groupIndex, itemIndex } = this.props;
+        const { dashboardId, item, groupIndex, groupName, itemIndex } = this.props;
         const { value, status, chartValues, chartMax } = this.state;
 
         return (
             <ItemLink status={status} to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>
-                <ItemChart width="150" height="50" status={status} color="#555" chartValues={chartValues} chartMax={
-chartMax}/>
+                {itemIndex == 0 ? <GroupTitle>{groupName}</GroupTitle> : <GroupTitleGray>{groupName}</GroupTitleGray>}
+                <ItemChart width="150" height="50" status={status} color="#555" chartValues={chartValues} chartMax={chartMax}/>
                 <ItemTitle>{item.name}</ItemTitle>
                 <Value>
                     {value}<ValuePostfix>{item.postfix}</ValuePostfix>

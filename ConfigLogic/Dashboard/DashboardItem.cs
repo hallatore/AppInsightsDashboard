@@ -171,8 +171,8 @@ namespace ConfigLogic.Dashboard
                 Postfix = "ms",
                 Total = ItemTotal.Average,
                 MinChartValue = 1000,
-                WarningThreshold = 1000,
-                ErrorThreshold = 2000
+                WarningThreshold = 5000,
+                ErrorThreshold = 9000
             };
 
             options?.Invoke(item);

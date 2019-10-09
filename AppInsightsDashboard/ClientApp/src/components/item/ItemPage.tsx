@@ -23,11 +23,20 @@ const AreaContainer = styled.div`
 
 const SplitContainer = styled.div`
     display: flex;
+
+    @media(max-width: 1024px) {
+        display: block;
+    }
 `;
 
 const MainSplitContainer = styled.div`
     width: 60%;
     margin-right: 20px;
+
+    @media(max-width: 1024px) {
+        width: auto;
+        margin-right: 0;
+    }
 `;
 
 const SecondarySplitContainer = styled.div`
@@ -49,6 +58,7 @@ const DurationButton = styled.button < { duration: ItemDuration, currentDuration
     `
     display: inline-block;
     margin-right: 2px;
+    margin-bottom: 2px;
     border: 0;
     padding: 7px 15px;
     font-family: 'Roboto', sans-serif;
@@ -206,10 +216,15 @@ export default class ItemPage extends React.Component<Props, State> {
                             <ItemChart values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            {isLoading && <Loader />}
+                            {queryParts.length > 0 && <QueryParts>
+                                {queryParts.map((part, index) =>
+                                    <QueryPartButton key={index} onClick={() => this.removeWhereQuery(part)}>{part}</QueryPartButton>)}
+                            </QueryParts>}
+                            <Query style={{ opacity: isLoading ? 0.3 : 1 }}>{query}</Query>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
@@ -217,12 +232,7 @@ export default class ItemPage extends React.Component<Props, State> {
                     </MainSplitContainer>
                     <SecondarySplitContainer>
                         <AreaContainer>
-                            {isLoading && <Loader />}
-                            {queryParts.length > 0 && <QueryParts>
-                                {queryParts.map((part, index) =>
-                                    <QueryPartButton key={index} onClick={() => this.removeWhereQuery(part)}>{part}</QueryPartButton>)}
-                            </QueryParts>}
-                            <Query style={{ opacity: isLoading ? 0.3 : 1 }}>{query}</Query>
+                            <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>

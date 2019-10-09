@@ -1,22 +1,32 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router';
-import Group, { DashboardGroup } from './Group';
+import Item, { DashboardItem } from './Item';
 
-const itemSpacing = '10px';
+const Page = styled.div`
+    overflow-x: hidden;
+`;
 
-const Groups = styled.ul`
-    list-style: none;
-    padding: 0;
-    margin: 0;
+const Items = styled.div`
     display: flex;
+    justify-content: stretch;
     flex-wrap: wrap;
-    margin-right: -${itemSpacing};
+    padding-top: 15px;
+    margin-right: -15px;
 `;
 
-const GroupContainer = styled(Group)`
-    margin-right: ${itemSpacing};
+const Spacer = styled.div`
+    flex-grow: 100;
+
+    @media(max-width: 500px) {
+        display: none;
+    }
 `;
+
+interface DashboardGroup {
+    name: string;
+    items: DashboardItem[];
+}
 
 type Props = RouteComponentProps<{ dashboardId: string }>;
 
@@ -52,15 +62,22 @@ export default class DashboardPage extends React.Component<Props, State> {
         const { groups } = this.state;
 
         return (
-            <Groups>
-                {groups.map((group, groupIndex) =>
-                    <GroupContainer
-                        key={groupIndex}
-                        dashboardId={this.props.match.params.dashboardId}
-                        group={group}
-                        groupIndex={groupIndex} />
-                )}
-            </Groups>
+            <Page>
+                <Items>
+                    {groups.map((group, groupIndex) =>
+                        group.items.map((item, itemIndex) =>
+                            <Item
+                                key={`${groupIndex}_${itemIndex}`}
+                                dashboardId={this.props.match.params.dashboardId}
+                                item={item}
+                                groupName={group.name}
+                                groupIndex={groupIndex}
+                                itemIndex={itemIndex} />
+                        )
+                    )}
+                    <Spacer />
+                </Items>
+            </Page>
         );
     }
 
