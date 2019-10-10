@@ -7,8 +7,8 @@ const ItemLink = styled(Link)<{status: ItemStatus}>`
     display: block;
     padding: 10px;
     padding-bottom: 0;
-    margin-right: 15px;
-    margin-bottom: 15px;
+    margin-right: 10px;
+    margin-bottom: 10px;
     position: relative;
     background: #222;
     color: #555;
@@ -49,14 +49,14 @@ const ItemLink = styled(Link)<{status: ItemStatus}>`
 `;
 
 const ItemTitle = styled.h3`
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 400;
     padding: 0;
     margin: 0;
     overflow: hidden;
     white-space: nowrap;
     position: absolute;
-    top: 5px;
+    top: 10px;
     left: 0;
     right: 0;
     text-align: center;
@@ -91,14 +91,11 @@ const ValuePostfix = styled.span`
 
 const GroupTitle = styled.div`
     position: absolute;
-    top: -13px;
-    color: #555;
+    top: 0px;
+    left: 3px;
+    color: #444;
     font-size: 10px;
     text-transform: uppercase;
-`;
-
-const GroupTitleGray = styled(GroupTitle)`    
-    color: #222;
 `;
 
 export interface DashboardItem {
@@ -161,7 +158,7 @@ export default class Item extends React.Component<Props, State> {
 
         return (
             <ItemLink status={status} to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>
-                {itemIndex == 0 ? <GroupTitle>{groupName}</GroupTitle> : <GroupTitleGray>{groupName}</GroupTitleGray>}
+                <GroupTitle>{groupName}</GroupTitle>
                 <ItemChart width="150" height="50" status={status} color="#555" chartValues={chartValues} chartMax={chartMax}/>
                 <ItemTitle>{item.name}</ItemTitle>
                 <Value>

@@ -11,8 +11,11 @@ const Items = styled.div`
     display: flex;
     justify-content: stretch;
     flex-wrap: wrap;
-    padding-top: 15px;
-    margin-right: -15px;
+    margin-right: -10px;
+
+    @media(max-width: 1024px) {
+        padding: 10px;
+    }
 `;
 
 const Spacer = styled.div`
