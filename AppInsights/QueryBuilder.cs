@@ -37,18 +37,19 @@ namespace AppInsights
 
         public static StructuredQuery AddWherePart(StructuredQuery structuredQuery, string part)
         {
-            var lastWhereIndex = 0;
+            var firstWhereIndex = 0;
 
             for (var i = 0; i < structuredQuery.Count; i++)
             {
                 if (structuredQuery[i].StartsWith("where ", StringComparison.OrdinalIgnoreCase))
                 {
-                    lastWhereIndex = i;
+                    firstWhereIndex = i;
+                    break;
                 }
             }
 
             var result = new StructuredQuery(structuredQuery);
-            result.Insert(lastWhereIndex + 1, part);
+            result.Insert(firstWhereIndex, part);
             return result;
         }
 
