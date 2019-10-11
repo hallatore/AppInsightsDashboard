@@ -17,7 +17,7 @@ namespace AppInsights.Analyzers
 
             var whereQuery = @"
                 | where details[0].parsedStack[0].fileName != ''
-                | project operation_Id, itemCount, filename = extract('([^\\\\/]+)$', 1, tostring(details[0].parsedStack[0].fileName)), type, line = tostring(details[0].parsedStack[0].line)
+                | project itemCount, filename = extract('([^\\\\/]+)$', 1, tostring(details[0].parsedStack[0].fileName)), type, line = tostring(details[0].parsedStack[0].line)
                 | summarize sum(itemCount) by filename, type, line
                 | order by sum_itemCount";
 

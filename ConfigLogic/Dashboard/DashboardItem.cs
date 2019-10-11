@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using AppInsights;
 
 namespace ConfigLogic.Dashboard
 {
     public class DashboardItem
     {
-        public Func<DashboardItem, double, TableResult, ItemStatus> GetStatus = DefaultGetStatus;
+        public Func<DashboardItem, double, List<double>, ItemStatus> GetStatus = DefaultGetStatus;
 
         public DashboardItem(string name, ApiToken apiToken, string query)
         {
@@ -33,39 +33,29 @@ namespace ConfigLogic.Dashboard
         public int StatusSplitFactor { get; set; }
         public Func<double, string> FormatValue { get; set; } = s => s.ToString("0");
 
-        private static ItemStatus DefaultGetStatus(DashboardItem item, double value, TableResult table)
+        private static ItemStatus DefaultGetStatus(DashboardItem item, double value, List<double> chart)
         {
             if (value <= item.DisabledThreshold)
             {
                 return ItemStatus.Disabled;
             }
 
-            if (table.Rows.Count <= item.StatusSplitFactor)
-            {
-                return ItemStatus.Normal;
-            }
-
-            var tmpQuery = table.Rows.OrderByDescending(v => (DateTime) v[0]).AsEnumerable();
+            var tmpQuery = chart.SkipLast(1).AsEnumerable();
             double finalTmpValue;
 
-            if (item.Duration.GetIntervalString().GetTimeSpan() < TimeSpan.FromMinutes(10))
-            {
-                tmpQuery = tmpQuery.Skip(1);
-            }
-
-            if (item.StatusSplitFactor > 0)
+            if (item.StatusSplitFactor > 0 && chart.Count > item.StatusSplitFactor)
             {
                 var count = tmpQuery.Count();
-                tmpQuery = tmpQuery.Take(count / item.StatusSplitFactor);
+                tmpQuery = tmpQuery.TakeLast(count / item.StatusSplitFactor);
             }
 
             if (item.Total == ItemTotal.Sum)
             {
-                finalTmpValue = tmpQuery.Sum(v => (double) v[1]);
+                finalTmpValue = tmpQuery.Sum();
             }
-            else if (item.Total == ItemTotal.Average)
+            else if (item.Total == ItemTotal.Average || item.Total == ItemTotal.Rpm)
             {
-                finalTmpValue = tmpQuery.Average(v => (double) v[1]);
+                finalTmpValue = tmpQuery.Average();
             }
             else
             {
@@ -126,7 +116,10 @@ namespace ConfigLogic.Dashboard
             var item = new DashboardItem(name, apiToken, query)
             {
                 Postfix = "pm",
-                Total = ItemTotal.Rpm
+                Total = ItemTotal.Rpm,
+                MinChartValue = 10,
+                WarningThreshold = 50,
+                ErrorThreshold = 100
             };
 
             options?.Invoke(item);
@@ -172,7 +165,7 @@ namespace ConfigLogic.Dashboard
                 Total = ItemTotal.Average,
                 MinChartValue = 1000,
                 WarningThreshold = 5000,
-                ErrorThreshold = 9000
+                ErrorThreshold = 0
             };
 
             options?.Invoke(item);
@@ -234,7 +227,7 @@ namespace ConfigLogic.Dashboard
 
         public static DashboardItem AddWebTestsPercentage(
             ApiToken apiToken,
-            string name = "Web tests",
+            string name = "Web tests 24h",
             Action<DashboardItem>? options = null,
             string whereQuery = "")
         {

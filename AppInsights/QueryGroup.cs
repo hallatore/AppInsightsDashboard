@@ -34,7 +34,8 @@ namespace AppInsights
             foreach (var part in queryParts)
             {
                 if (part.StartsWith("where type ", StringComparison.OrdinalIgnoreCase) ||
-                    part.StartsWith("where details", StringComparison.OrdinalIgnoreCase))
+                    part.StartsWith("where details", StringComparison.OrdinalIgnoreCase) ||
+                    part.StartsWith("where outerMessage", StringComparison.OrdinalIgnoreCase))
                 {
                     if (IsExceptionsQuery())
                     {

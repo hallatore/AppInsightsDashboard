@@ -243,6 +243,9 @@ export default class ItemPage extends React.Component<Props, State> {
                         <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('StacktraceAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
+                        <AreaContainer>
+                            <AnalyzerTable url={this.getAnalyzerUrl('ExceptionMessageAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                        </AreaContainer>
                         {false && count > 0 && !isLoading && <BrowseButton>{count} Operations</BrowseButton>}
                     </SecondarySplitContainer>
                 </SplitContainer>

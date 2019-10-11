@@ -84,6 +84,7 @@ const TableRow = styled.tr`
 const TableCell = styled.td`
     border-top: 1px solid #333;
     font-size: 11px;
+    line-height: 140%;
     padding: 5px;
     text-align: right;
     position: relative;
@@ -92,6 +93,7 @@ const TableCell = styled.td`
         padding-left: 15px;
         text-align: left;
         word-break: break-all;
+        white-space: pre-line;
         width: 100%;
     }
 

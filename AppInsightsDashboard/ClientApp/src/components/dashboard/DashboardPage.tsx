@@ -15,6 +15,9 @@ const Items = styled.div`
 
     @media(max-width: 1024px) {
         padding: 10px;
+        padding-right: 0;
+        padding-bottom: 0;
+        margin-right: 0;
     }
 `;
 

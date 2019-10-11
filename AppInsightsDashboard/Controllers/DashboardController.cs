@@ -49,7 +49,7 @@ namespace AppInsightsDashboard.Controllers
 
             var chart = TransformQuery(values, item.Duration.GetString().GetTimeSpan(), item.Duration.GetIntervalString().GetTimeSpan());
             var max = Math.Max(item.MinChartValue, chart.Any() ? chart.Max() : 0);
-            var status = item.GetStatus(item, value, table);
+            var status = item.GetStatus(item, value, chart);
 
             return new
             {
@@ -97,7 +97,7 @@ namespace AppInsightsDashboard.Controllers
 
             return new
             {
-                Name = $"{groupKey} - {item.Name}",
+                Name = $"{groupKey} / {item.Name}",
                 ChartValues = chart.Select(c => new { c.Date, c.Value }),
                 ChartMax = max,
                 Query = queryGroup.ToString(),
@@ -126,6 +126,8 @@ namespace AppInsightsDashboard.Controllers
                     return await ExceptionsAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
                 case "StacktraceAnalyzer":
                     return await StacktraceAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                case "ExceptionMessageAnalyzer":
+                    return await ExceptionMessageAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
             }
 
             throw new InvalidOperationException($"Analyzer \"{analyzer}\" was not found.");
@@ -216,10 +218,9 @@ namespace AppInsightsDashboard.Controllers
 
             if (result.Count > 10)
             {
-                var skipAmount = interval.TotalMinutes > 5 ? 1 : 4;
                 return result
                     .Skip(1)
-                    .SkipLast(skipAmount)
+                    .SkipLast(1)
                     .ToList();
             }
 
