@@ -20,7 +20,7 @@ namespace AppInsights
 
             foreach (var type in new[] { "requests", "exceptions", "availabilityResults" })
             {
-                _queries.Add(type, QueryBuilder.Parse($" {type} | where timestamp > ago(1h)"));
+                _queries.Add(type, QueryBuilder.Parse($" {type} | {_query.First(q => q.Contains("timestamp >"))}"));
                 _queriesUsed.Add(type, false);
             }
         }

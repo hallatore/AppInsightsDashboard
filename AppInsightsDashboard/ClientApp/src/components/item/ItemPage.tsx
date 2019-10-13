@@ -178,7 +178,13 @@ export default class ItemPage extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
-        const historyState = history.state || {};
+        var urlParams = new URLSearchParams(window.location.search);
+        const historyState = {
+            duration: urlParams.has("duration") ? parseInt(urlParams.get("duration") || '', 10) : null,
+            durationFrom: urlParams.has("durationFrom") ? new Date(urlParams.get("durationFrom") || '') : null,
+            durationTo: urlParams.has("durationTo") ? new Date(urlParams.get("durationTo") || '') : null,
+            queryParts: urlParams.has("queryParts") ? urlParams.getAll("queryParts") : null,
+        };
 
         this.state = {
             isLoading: false,
@@ -313,13 +319,9 @@ export default class ItemPage extends React.Component<Props, State> {
     }
 
     private saveState() {
-        const state = {
-            duration: this.state.duration,
-            durationFrom: this.state.durationFrom,
-            durationTo: this.state.durationTo,
-            queryParts: this.state.queryParts
-        };
-        history.replaceState(state, document.title, location.href);
+        const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
+        const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
+        history.replaceState(null, document.title, `${location.pathname}?duration=${this.state.duration}${durationParts}${queryParts}`);
     }
 
     private getAnalyzerUrl(analyzerName: string): string {
