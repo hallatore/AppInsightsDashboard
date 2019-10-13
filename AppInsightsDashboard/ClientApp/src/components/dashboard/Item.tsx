@@ -15,6 +15,7 @@ const ItemLink = styled(Link)<{status: ItemStatus}>`
     text-decoration: none;
     flex-grow: 1;
     min-width: 170px;
+    overflow: hidden;
         
     @media(max-width: 500px) {
         min-width: auto;
@@ -74,6 +75,12 @@ const Value = styled.div`
     text-shadow: 0px 1px 3px #222;
 `;
 
+const ValuePostfix = styled.span`
+    font-size: 18px;
+    font-weight: 300;
+    padding-left: 3px;
+`;
+
 const ItemChart = styled(Chart) < { status: ItemStatus } >`
     opacity: 0.4;
     margin-top: 20px;
@@ -83,12 +90,6 @@ const ItemChart = styled(Chart) < { status: ItemStatus } >`
     height: 50px;
 `;
 
-const ValuePostfix = styled.span`
-    font-size: 18px;
-    font-weight: 300;
-    padding-left: 3px;
-`;
-
 const GroupTitle = styled.div`
     position: absolute;
     top: 0px;
@@ -96,6 +97,58 @@ const GroupTitle = styled.div`
     color: #444;
     font-size: 10px;
     text-transform: uppercase;
+    white-space: nowrap;
+`;
+
+const ItemLinkDisabled = styled(Link)`
+    display: block;
+    padding: 10px;
+    padding-bottom: 0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    background: #111;
+    color: #333;
+    text-decoration: none;
+    flex-grow: 0;
+    width: 20px;
+    overflow: hidden;
+        
+    @media(max-width: 500px) {
+        min-width: auto;
+        max-width: 50%;
+    }
+
+    &:hover {
+        background: #333;
+        color: white;
+        cursor: pointer;
+    }
+
+    &:last-child {
+        margin-right: 0;
+        
+        @media(max-width: 1024px) {
+            margin-right: 10px;
+        }
+    }
+
+    ${ItemTitle} {
+        font-size: 10px;
+        white-space: normal;
+        word-break: break-word;
+        top: 15px;
+    }
+
+    ${Value} {
+        font-size: 16px;
+        bottom: 10px;
+    }
+
+    ${ValuePostfix} {
+        font-size: 8px;
+        padding-left: 1px;
+    }
 `;
 
 export interface DashboardItem {
@@ -155,6 +208,19 @@ export default class Item extends React.Component<Props, State> {
     render() {
         const { dashboardId, item, groupIndex, groupName, itemIndex } = this.props;
         const { value, status, chartValues, chartMax } = this.state;
+
+        if (status == ItemStatus.Disabled) {
+            return (
+                <ItemLinkDisabled to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>
+                    <GroupTitle>{groupName}</GroupTitle>
+                    <ItemChart width="150" height="50" status={status} color="#555" chartValues={chartValues} chartMax={chartMax}/>
+                    <ItemTitle>{item.name}</ItemTitle>
+                    <Value>
+                        {value}<ValuePostfix>{item.postfix}</ValuePostfix>
+                    </Value>
+                </ItemLinkDisabled>
+            );
+        }
 
         return (
             <ItemLink status={status} to={`/${dashboardId}/Item/${groupIndex}/${itemIndex}`}>

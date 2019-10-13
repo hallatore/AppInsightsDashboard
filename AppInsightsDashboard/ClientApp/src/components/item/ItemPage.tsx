@@ -113,18 +113,6 @@ const Query = styled.div`
     color: #999;
 `;
 
-const ChartMax = styled.div`
-    position: absolute;
-    right: 15px;
-    color: #999;
-    font-size: 14px;
-`;
-
-const ItemChart = styled(Chart)`
-    margin-top: 20px;
-    border-bottom: 1px solid #555;
-`;
-
 const BrowseButton = styled.button`
     display: block;
     border: 0;
@@ -229,7 +217,7 @@ export default class ItemPage extends React.Component<Props, State> {
                     <MainSplitContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
-                            <ItemChart onUpdateCustomDuration={(from: Date, to: Date) => this.updateCustomDuration(from, to)} values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
+                            <Chart onUpdateCustomDuration={(from: Date, to: Date) => this.updateCustomDuration(from, to)} values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
                         </AreaContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
