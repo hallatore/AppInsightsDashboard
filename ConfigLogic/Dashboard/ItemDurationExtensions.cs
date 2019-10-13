@@ -34,6 +34,12 @@ namespace ConfigLogic.Dashboard
             return $"{minutes:0}m";
         }
 
+        public static string GetIntervalString(this DateTime from, DateTime to, int splits = 30)
+        {
+            var minutes = Math.Max((to - from).TotalMinutes / splits, 1);
+            return $"{minutes:0}m";
+        }
+
         public static TimeSpan GetTimeSpan(this string input)
         {
             var match = Regex.Match(input, @"^([0-9]+)(m|h|d)$");

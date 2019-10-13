@@ -11,7 +11,6 @@ namespace AppInsights.Analyzers
         {
             query = QueryBuilder.RemoveProject(query);
             query = QueryBuilder.RemoveSummarize(query);
-            var duration = QueryBuilder.GetDuration(query);
             var isExceptionsQuery = query.FirstOrDefault()?.Trim().StartsWith("exceptions", StringComparison.OrdinalIgnoreCase) == true;
             QueryGroup queryGroup;
 
@@ -23,7 +22,7 @@ namespace AppInsights.Analyzers
 
             if (isExceptionsQuery)
             {
-                queryGroup = new QueryGroup(query, duration);
+                queryGroup = new QueryGroup(query);
                 queryGroup.AddParts(queryParts);
                 queryGroup.Append(QueryBuilder.Parse(whereQuery));
             }
@@ -32,10 +31,10 @@ namespace AppInsights.Analyzers
                 var exceptionsQuery = QueryBuilder.Parse(
                     $@"
                 exceptions
-                | where timestamp > ago(1h)
+                | {query.First(q => q.Contains("timestamp >"))}
                 {whereQuery}");
 
-                queryGroup = new QueryGroup(exceptionsQuery, duration);
+                queryGroup = new QueryGroup(exceptionsQuery);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);
             }

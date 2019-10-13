@@ -9,16 +9,12 @@ namespace AppInsights
     {
         private readonly Dictionary<string, StructuredQuery> _queries;
         private readonly Dictionary<string, bool> _queriesUsed;
-        private readonly string _duration;
 
         private StructuredQuery _query;
 
-        public QueryGroup(
-            StructuredQuery query,
-            string duration)
+        public QueryGroup(StructuredQuery query)
         {
             _query = query;
-            _duration = duration;
             _queries = new Dictionary<string, StructuredQuery>();
             _queriesUsed = new Dictionary<string, bool>();
 
@@ -159,7 +155,6 @@ namespace AppInsights
             }
 
             result += QueryBuilder.ToQueryString(query);
-            result = Regex.Replace(result, @"ago\(([0-9a-z]+)\)", $"ago({_duration})");
             result = Regex.Replace(result, "[ ]+", " ");
             return result;
         }

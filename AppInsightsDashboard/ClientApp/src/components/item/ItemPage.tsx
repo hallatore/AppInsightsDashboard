@@ -154,13 +154,16 @@ enum ItemDuration {
     OneDay = 3,
     ThreeDays = 4,
     SevenDays = 5,
-    ThirtyDays = 6
+    ThirtyDays = 6,
+    Custom = 42
 }
 
 interface State {
     isLoading: boolean;
-    name: string,
+    name: string;
     duration: ItemDuration;
+    durationFrom: Date | null;
+    durationTo: Date | null;
     query: string;
     queryParts: string[];
     chartValues: ChartValue[];
@@ -171,6 +174,7 @@ interface State {
 type Props = RouteComponentProps<{ dashboardId: string, groupIndex: string, itemIndex: string }>;
 
 export default class ItemPage extends React.Component<Props, State> {
+
     constructor(props: Props) {
         super(props);
 
@@ -180,6 +184,8 @@ export default class ItemPage extends React.Component<Props, State> {
             isLoading: false,
             name: '',
             duration: historyState.duration || ItemDuration.OneHour,
+            durationFrom: historyState.durationFrom || null,
+            durationTo: historyState.durationTo || null,
             query: '',
             queryParts: historyState.queryParts || [],
             chartValues: [],
@@ -193,7 +199,7 @@ export default class ItemPage extends React.Component<Props, State> {
     }
 
     render() {
-        const { name, duration, query, queryParts, isLoading, chartValues, chartMax, count } = this.state;
+        const { name, duration, durationFrom, durationTo, query, queryParts, isLoading, chartValues, chartMax, count } = this.state;
 
         return (
             <Container>
@@ -207,13 +213,17 @@ export default class ItemPage extends React.Component<Props, State> {
                         <DurationButton duration={ItemDuration.ThreeDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.ThreeDays)}>3 days</DurationButton>
                         <DurationButton duration={ItemDuration.SevenDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.SevenDays)}>7 days</DurationButton>
                         <DurationButton duration={ItemDuration.ThirtyDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.ThirtyDays)}>30 days</DurationButton>
+                        {duration === ItemDuration.Custom && 
+                            durationFrom != null && 
+                            durationTo != null && 
+                            <DurationButton duration={ItemDuration.Custom} currentDuration={duration}>{durationFrom.toLocaleString()} - {durationTo.toLocaleString()}</DurationButton>}
                     </div>
                 </Header>
                 <SplitContainer>
                     <MainSplitContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
-                            <ItemChart values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
+                            <ItemChart onUpdateCustomDuration={(from: Date, to: Date) => this.updateCustomDuration(from, to)} values={chartValues} max={chartMax} style={{ opacity: isLoading ? 0.3 : 1 }}/>
                         </AreaContainer>
                         <AreaContainer>
                             {isLoading && <Loader />}
@@ -265,6 +275,14 @@ export default class ItemPage extends React.Component<Props, State> {
         this.setState({ queryParts: queryParts }, () => this.ensureDataFetched());
     }
 
+    private updateCustomDuration(from: Date, to: Date) {
+        this.setState({ 
+            duration: ItemDuration.Custom,
+            durationFrom: from,
+            durationTo: to 
+        }, () => this.ensureDataFetched());
+    }
+
     private updateDuration(duration: ItemDuration) {
         this.setState({ duration: duration }, () => this.ensureDataFetched());
     }
@@ -277,8 +295,9 @@ export default class ItemPage extends React.Component<Props, State> {
         const groupIndex = this.props.match.params.groupIndex;
         const itemIndex = this.props.match.params.itemIndex;
         const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
+        const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
 
-        fetch(`/api/Dashboard/${dashboardId}/Details/${groupIndex}/${itemIndex}?duration=${this.state.duration}${queryParts}`)
+        fetch(`/api/Dashboard/${dashboardId}/Details/${groupIndex}/${itemIndex}?duration=${this.state.duration}${durationParts}${queryParts}`)
             .then(response => response.json() as Promise<any>)
             .then(data => {
                 this.setState({
@@ -296,6 +315,8 @@ export default class ItemPage extends React.Component<Props, State> {
     private saveState() {
         const state = {
             duration: this.state.duration,
+            durationFrom: this.state.durationFrom,
+            durationTo: this.state.durationTo,
             queryParts: this.state.queryParts
         };
         history.replaceState(state, document.title, location.href);
@@ -306,7 +327,8 @@ export default class ItemPage extends React.Component<Props, State> {
         const groupIndex = this.props.match.params.groupIndex;
         const itemIndex = this.props.match.params.itemIndex;
         const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
-        return `/api/Dashboard/${dashboardId}/Analyzer/${groupIndex}/${itemIndex}/${analyzerName}?duration=${this.state.duration}${queryParts}`;
+        const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
+        return `/api/Dashboard/${dashboardId}/Analyzer/${groupIndex}/${itemIndex}/${analyzerName}?duration=${this.state.duration}${durationParts}${queryParts}`;
     }
 
     private addCallback(queryPart: string) {

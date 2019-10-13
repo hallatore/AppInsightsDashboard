@@ -8,6 +8,7 @@
         OneDay = 3,
         ThreeDays = 4,
         SevenDays = 5,
-        ThirtyDays = 6
+        ThirtyDays = 6,
+        Custom = 42
     }
 }

@@ -52,20 +52,5 @@ namespace AppInsights
             result.Insert(firstWhereIndex, part);
             return result;
         }
-
-        public static string GetDuration(StructuredQuery query)
-        {
-            foreach (var part in query)
-            {
-                var match = Regex.Match(part, @"ago\(([0-9a-z]+)\)");
-
-                if (match.Success)
-                {
-                    return match.Groups[1].Value;
-                }
-            }
-
-            throw new InvalidOperationException("ago timestamp is missing");
-        }
     }
 }

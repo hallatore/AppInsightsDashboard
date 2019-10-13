@@ -10,7 +10,6 @@ namespace AppInsights.Analyzers
         {
             query = QueryBuilder.RemoveProject(query);
             query = QueryBuilder.RemoveSummarize(query);
-            var duration = QueryBuilder.GetDuration(query);
             var isRequestsQuery = query.FirstOrDefault()?.Trim().StartsWith("requests", StringComparison.OrdinalIgnoreCase) == true;
             QueryGroup queryGroup;
 
@@ -21,7 +20,7 @@ namespace AppInsights.Analyzers
 
             if (isRequestsQuery)
             {
-                queryGroup = new QueryGroup(query, duration);
+                queryGroup = new QueryGroup(query);
                 queryGroup.AddParts(queryParts);
                 queryGroup.Append(QueryBuilder.Parse(whereQuery));
             }
@@ -30,10 +29,10 @@ namespace AppInsights.Analyzers
                 var requestsQuery = QueryBuilder.Parse(
                     $@"
                 requests
-                | where timestamp > ago(1h)
+                | {query.First(q => q.Contains("timestamp >"))}
                 {whereQuery}");
 
-                queryGroup = new QueryGroup(requestsQuery, duration);
+                queryGroup = new QueryGroup(requestsQuery);
                 queryGroup.Replace(query.First().Trim(), query);
                 queryGroup.AddParts(queryParts);
             }

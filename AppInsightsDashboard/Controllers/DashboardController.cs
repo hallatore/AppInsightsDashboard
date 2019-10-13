@@ -61,16 +61,27 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Details/{groupIndex}/{itemIndex}")]
-        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts)
+        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string[] queryParts)
         {
-            var durationString = duration.GetString();
-            var intervalString = duration.GetIntervalString();
             var dashboard = _config.Dashboards[dashboardId];
             var groupKey = dashboard.Keys.ToList()[groupIndex];
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
-            var itemQuery = GetQueryString(item, durationString, intervalString);
+            string itemQuery;
+            string intervalString;
+
+            if (duration == ItemDuration.Custom)
+            {
+                intervalString = durationFrom.GetIntervalString(durationTo);
+                itemQuery = GetQueryString(item, durationFrom, durationTo, intervalString);
+            }
+            else
+            {
+                intervalString = duration.GetIntervalString();
+                itemQuery = GetQueryString(item, duration.GetString(), intervalString);
+            }
+
             var structuredQuery = QueryBuilder.Parse(itemQuery);
-            var queryGroup = new QueryGroup(structuredQuery, QueryBuilder.GetDuration(structuredQuery));
+            var queryGroup = new QueryGroup(structuredQuery);
             queryGroup.AddParts(queryParts);
 
             var values = await GetChartValues(item, queryGroup.ToString());
@@ -86,14 +97,24 @@ namespace AppInsightsDashboard.Controllers
                 values = await GetChartValues(item, queryGroup.ToString());
             }
 
-            var chart = FillEmptySlotsInTimeRange(values, durationString.GetTimeSpan(), intervalString.GetTimeSpan());
+            List<(DateTime Date, double Value)> chart;
+
+            if (duration == ItemDuration.Custom)
+            {
+                chart = FillEmptySlotsInTimeRange(values, durationFrom, durationTo, intervalString.GetTimeSpan());
+            }
+            else
+            {
+                chart = FillEmptySlotsInTimeRange(values, duration.GetString().GetTimeSpan(), intervalString.GetTimeSpan());
+            }
+
             var chartMax = chart.Any() ? chart.Max(c => c.Value) : 0;
             var minMax = item.MinChartValue / item.Duration.GetIntervalString().GetTimeSpan().TotalMinutes * intervalString.GetTimeSpan().TotalMinutes;
             minMax = Math.Min(minMax, chartMax * 5);
             var max = Math.Max(minMax, chartMax);
 
             queryGroup.RemoveProjectAndSummarize();
-            var count = await GetCountQuery(dashboardId, groupIndex, itemIndex, duration, queryParts);
+            var count = await GetCountQuery(dashboardId, groupIndex, itemIndex, duration, durationFrom, durationTo, queryParts);
 
             return new
             {
@@ -106,10 +127,20 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Analyzer/{groupIndex}/{itemIndex}/{analyzer}")]
-        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, string[] queryParts)
+        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string[] queryParts)
         {
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
-            var itemQuery = GetQueryString(item, duration.GetString(), duration.GetIntervalString());
+            string itemQuery;
+
+            if (duration == ItemDuration.Custom)
+            {
+                itemQuery = GetQueryString(item, durationFrom, durationTo, durationFrom.GetIntervalString(durationTo));
+            }
+            else
+            {
+                itemQuery = GetQueryString(item, duration.GetString(), duration.GetIntervalString());
+            }
+
             var query = QueryBuilder.Parse(itemQuery);
 
             switch (analyzer)
@@ -151,16 +182,24 @@ namespace AppInsightsDashboard.Controllers
             return value;
         }
 
-        private async Task<long> GetCountQuery(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, string[] queryParts)
+        private async Task<long> GetCountQuery(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string[] queryParts)
         {
-            var durationString = duration.GetString();
-            var intervalString = duration.GetIntervalString();
-            var dashboard = _config.Dashboards[dashboardId];
-            var groupKey = dashboard.Keys.ToList()[groupIndex];
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
-            var itemQuery = GetQueryString(item, durationString, intervalString);
+            string itemQuery;
+
+            if (duration == ItemDuration.Custom)
+            {
+                itemQuery = GetQueryString(item, durationFrom, durationTo, durationFrom.GetIntervalString(durationTo));
+            }
+            else
+            {
+                var durationString = duration.GetString();
+                var intervalString = duration.GetIntervalString();
+                itemQuery = GetQueryString(item, durationString, intervalString);
+            }
+            
             var structuredQuery = QueryBuilder.Parse(itemQuery);
-            var queryGroup = new QueryGroup(structuredQuery, QueryBuilder.GetDuration(structuredQuery));
+            var queryGroup = new QueryGroup(structuredQuery);
             queryGroup.AddParts(queryParts);
             queryGroup.RemoveProjectAndSummarize();
             queryGroup.Append(QueryBuilder.Parse("| summarize sum(itemCount)"));
@@ -184,6 +223,15 @@ namespace AppInsightsDashboard.Controllers
             return query;
         }
 
+        private string GetQueryString(ConfigLogic.Dashboard.DashboardItem item, DateTime durationFrom, DateTime durationTo, string bin)
+        {
+            var query = item.Query.Trim();
+            query = Regex.Replace(query, @"> ago\([0-9a-z]+\)", $">= datetime('{(durationFrom.ToString("o"))}') and timestamp <= datetime('{(durationTo.ToString("o"))}')");
+            query = Regex.Replace(query, @"bin\(([\w]+),[ ]*[0-9a-z]+\)", $"bin($1, {bin})");
+            query = Regex.Replace(query, @"\r\n[\W]*\|", "\r\n|");
+            return query;
+        }
+
         private List<(DateTime Date, double Value)> FillEmptySlotsInTimeRange(List<RowItem> items, TimeSpan duration, TimeSpan interval)
         {
             if (items?.Any() == false)
@@ -191,7 +239,6 @@ namespace AppInsightsDashboard.Controllers
                 return new List<(DateTime, double)>();
             }
 
-            var dictionary = items.ToDictionary(item => item.Date, item => item.Value);
             var maxDate = items.Max(c => c.Date);
 
             while (maxDate < DateTime.UtcNow - interval)
@@ -200,6 +247,22 @@ namespace AppInsightsDashboard.Controllers
             }
 
             var minDate = maxDate - duration;
+
+            return FillEmptySlotsInTimeRange(items, minDate, maxDate, interval);
+        }
+
+        private List<(DateTime Date, double Value)> FillEmptySlotsInTimeRange(List<RowItem> items, DateTime durationFrom, DateTime durationTo, TimeSpan interval)
+        {
+            if (items?.Any() == false)
+            {
+                return new List<(DateTime, double)>();
+            }
+
+            var dictionary = items.ToDictionary(item => item.Date, item => item.Value);
+            var minDateDifference = (int)Math.Floor((items[0].Date - durationFrom.ToUniversalTime()).TotalMinutes / interval.TotalMinutes);
+            var minDate = items[0].Date.AddMinutes(minDateDifference * interval.TotalMinutes * -1);
+            var maxDate = durationTo.ToUniversalTime();
+
 
             while (minDate <= maxDate)
             {
