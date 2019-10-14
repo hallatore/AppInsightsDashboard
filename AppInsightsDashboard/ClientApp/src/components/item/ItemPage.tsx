@@ -135,6 +135,23 @@ const BackLink = styled(Link)`
     text-decoration: none;
 `;
 
+const SearchBox = styled.input`
+    display: block;
+    border: 0;
+    background: #ccc;
+    width: 33%;
+    padding: 10px 15px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 15px;
+    margin-bottom: 20px;
+    margin-left: auto;
+
+    @media(max-width: 1024px) {
+        width: 100%;
+        box-sizing: border-box;
+    }
+`;
+
 enum ItemDuration {
     OneHour = 0,
     SixHours = 1,
@@ -153,11 +170,13 @@ interface State {
     duration: ItemDuration;
     durationFrom: Date | null;
     durationTo: Date | null;
+    searchQuery: string;
     query: string;
     queryParts: string[];
     chartValues: ChartValue[];
     chartMax: number;
     count: number;
+    queryTimestamp: number;
 }
 
 type Props = RouteComponentProps<{ dashboardId: string, groupIndex: string, itemIndex: string }>;
@@ -173,6 +192,7 @@ export default class ItemPage extends React.Component<Props, State> {
             durationFrom: urlParams.has("durationFrom") ? new Date(urlParams.get("durationFrom") || '') : null,
             durationTo: urlParams.has("durationTo") ? new Date(urlParams.get("durationTo") || '') : null,
             queryParts: urlParams.has("queryParts") ? urlParams.getAll("queryParts") : null,
+            searchQuery: urlParams.has("searchQuery") ? urlParams.get("searchQuery") : null,
         };
 
         this.state = {
@@ -181,11 +201,13 @@ export default class ItemPage extends React.Component<Props, State> {
             duration: historyState.duration || ItemDuration.OneHour,
             durationFrom: historyState.durationFrom || null,
             durationTo: historyState.durationTo || null,
+            searchQuery: historyState.searchQuery || '',
             query: '',
             queryParts: historyState.queryParts || [],
             chartValues: [],
             chartMax: 0,
-            count: 0
+            count: 0,
+            queryTimestamp: (new Date()).getTime()
         };
     }
 
@@ -229,28 +251,29 @@ export default class ItemPage extends React.Component<Props, State> {
                             </QueryParts>}
                             <Query style={{ opacity: isLoading ? 0.3 : 1 }}>{query}</Query>
                         </AreaContainer>
+                            <SearchBox type="text" placeholder="Search to filter items..." onChange={(e) => this.updateSearchQuery(e)} defaultValue={this.state.searchQuery} />
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('RequestsAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('UrlAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                     </MainSplitContainer>
                     <SecondarySplitContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('RequestExceptionsAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('RequestExceptionsAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('StacktraceAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('StacktraceAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
-                            <AnalyzerTable url={this.getAnalyzerUrl('ExceptionMessageAnalyzer')} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                            <AnalyzerTable url={this.getAnalyzerUrl('ExceptionMessageAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         {false && count > 0 && !isLoading && <BrowseButton>{count} Operations</BrowseButton>}
                     </SecondarySplitContainer>
@@ -268,7 +291,7 @@ export default class ItemPage extends React.Component<Props, State> {
         }
 
         queryParts.splice(index, 1);
-        this.setState({ queryParts: queryParts }, () => this.ensureDataFetched());
+        this.setState({ queryParts: queryParts, queryTimestamp: (new Date()).getTime() }, () => this.ensureDataFetched());
     }
 
     private updateCustomDuration(from: Date, to: Date) {
@@ -280,7 +303,23 @@ export default class ItemPage extends React.Component<Props, State> {
     }
 
     private updateDuration(duration: ItemDuration) {
-        this.setState({ duration: duration }, () => this.ensureDataFetched());
+        this.setState({ duration: duration, queryTimestamp: (new Date()).getTime() }, () => this.ensureDataFetched());
+    }
+
+    private updateSearchQueryTimeout: NodeJS.Timeout | null = null;
+
+    private updateSearchQuery(e: any) {
+        this.setState({ searchQuery: e.target.value });
+
+        if (this.updateSearchQueryTimeout != null) {
+            clearTimeout(this.updateSearchQueryTimeout);
+        }
+
+        this.updateSearchQueryTimeout = setTimeout(() => {
+            this.ensureDataFetched();
+            this.setState({ queryTimestamp: (new Date()).getTime() });
+            this.updateSearchQueryTimeout = null;
+        }, 1000);        
     }
 
     private ensureDataFetched() {
@@ -292,8 +331,9 @@ export default class ItemPage extends React.Component<Props, State> {
         const itemIndex = this.props.match.params.itemIndex;
         const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
         const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
+        const searchQuery = `&searchQuery=${encodeURIComponent(this.state.searchQuery)}`;
 
-        fetch(`/api/Dashboard/${dashboardId}/Details/${groupIndex}/${itemIndex}?duration=${this.state.duration}${durationParts}${queryParts}`)
+        fetch(`/api/Dashboard/${dashboardId}/Details/${groupIndex}/${itemIndex}?duration=${this.state.duration}${durationParts}${searchQuery}${queryParts}`)
             .then(response => response.json() as Promise<any>)
             .then(data => {
                 this.setState({
@@ -311,7 +351,8 @@ export default class ItemPage extends React.Component<Props, State> {
     private saveState() {
         const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
         const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
-        history.replaceState(null, document.title, `${location.pathname}?duration=${this.state.duration}${durationParts}${queryParts}`);
+        const searchQuery = `&searchQuery=${encodeURIComponent(this.state.searchQuery)}`;
+        history.replaceState(null, document.title, `${location.pathname}?duration=${this.state.duration}${durationParts}${searchQuery}${queryParts}`);
     }
 
     private getAnalyzerUrl(analyzerName: string): string {
@@ -320,7 +361,8 @@ export default class ItemPage extends React.Component<Props, State> {
         const itemIndex = this.props.match.params.itemIndex;
         const queryParts = this.state.queryParts.map(part => `&queryParts=${encodeURIComponent(part)}`).join('');
         const durationParts = this.state.duration == ItemDuration.Custom && this.state.durationFrom && this.state.durationTo ? `&durationFrom=${this.state.durationFrom.toISOString()}&durationTo=${this.state.durationTo.toISOString()}` : '';
-        return `/api/Dashboard/${dashboardId}/Analyzer/${groupIndex}/${itemIndex}/${analyzerName}?duration=${this.state.duration}${durationParts}${queryParts}`;
+        const searchQuery = `&searchQuery=${encodeURIComponent(this.state.searchQuery)}`;
+        return `/api/Dashboard/${dashboardId}/Analyzer/${groupIndex}/${itemIndex}/${analyzerName}?duration=${this.state.duration}${durationParts}${searchQuery}${queryParts}`;
     }
 
     private addCallback(queryPart: string) {
@@ -331,6 +373,6 @@ export default class ItemPage extends React.Component<Props, State> {
         }
 
         queryParts.push(queryPart);
-        this.setState({ queryParts: queryParts }, () => this.ensureDataFetched());
+        this.setState({ queryParts: queryParts, queryTimestamp: (new Date()).getTime() }, () => this.ensureDataFetched());
     }
 }

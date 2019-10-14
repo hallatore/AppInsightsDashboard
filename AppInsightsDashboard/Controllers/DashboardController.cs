@@ -61,7 +61,7 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Details/{groupIndex}/{itemIndex}")]
-        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string[] queryParts)
+        public async Task<dynamic> Details(Guid dashboardId, int groupIndex, int itemIndex, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string searchQuery, string[] queryParts)
         {
             var dashboard = _config.Dashboards[dashboardId];
             var groupKey = dashboard.Keys.ToList()[groupIndex];
@@ -83,6 +83,14 @@ namespace AppInsightsDashboard.Controllers
             var structuredQuery = QueryBuilder.Parse(itemQuery);
             var queryGroup = new QueryGroup(structuredQuery);
             queryGroup.AddParts(queryParts);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                foreach (var searchQueryPart in GetSearchQueryParts(searchQuery))
+                {
+                    queryGroup.AddWhere(searchQueryPart);
+                }
+            }
 
             var values = await GetChartValues(item, queryGroup.ToString());
 
@@ -127,7 +135,7 @@ namespace AppInsightsDashboard.Controllers
         }
 
         [HttpGet("Analyzer/{groupIndex}/{itemIndex}/{analyzer}")]
-        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string[] queryParts)
+        public async Task<dynamic> Analyzer(Guid dashboardId, int groupIndex, int itemIndex, string analyzer, ItemDuration duration, DateTime durationFrom, DateTime durationTo, string searchQuery, string[] queryParts)
         {
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
             string itemQuery;
@@ -142,6 +150,18 @@ namespace AppInsightsDashboard.Controllers
             }
 
             var query = QueryBuilder.Parse(itemQuery);
+
+            if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                var queryGroup = new QueryGroup(query); 
+                
+                foreach (var searchQueryPart in GetSearchQueryParts(searchQuery))
+                {
+                    queryGroup.AddWhere(searchQueryPart);
+                }
+
+                query = QueryBuilder.Parse(queryGroup.ToString());
+            }
 
             switch (analyzer)
             {
@@ -162,6 +182,39 @@ namespace AppInsightsDashboard.Controllers
             }
 
             throw new InvalidOperationException($"Analyzer \"{analyzer}\" was not found.");
+        }
+
+        private IEnumerable<string> GetSearchQueryParts(string searchQuery)
+        {
+            var parts = searchQuery
+                .Split(new[]{' '}, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+
+            if (searchQuery.Contains("\""))
+            {
+                var insideLongString = false;
+                parts = new List<string>();
+
+                foreach (var bigPart in searchQuery.Split(new[] { '"' }))
+                {
+                    if (insideLongString)
+                    {
+                        parts.Add(bigPart);
+                    }
+                    else
+                    {
+                        parts.AddRange(bigPart.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                    }
+
+                    insideLongString = !insideLongString;
+                }
+            }
+
+            foreach (var searchQueryPart in parts)
+            {
+                var part = searchQueryPart.Trim().Replace(@"\", @"\\").Replace(@"'", @"\'");
+                yield return part.StartsWith("!") ? $"where * !contains '{part.Substring(1)}'" : $"where * contains '{part}'";
+            }
         }
 
         private async Task<double> GetValueQuery(ConfigLogic.Dashboard.DashboardItem item, string query)

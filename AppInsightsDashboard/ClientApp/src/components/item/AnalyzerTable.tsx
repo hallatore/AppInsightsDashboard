@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import styled from 'styled-components';
 import Loader from '../utils/Loader';
+import { number } from 'prop-types';
 
 const QueryButtonContainer = styled.div`
     position: absolute;
@@ -104,12 +105,13 @@ const TableCell = styled.td`
 
 interface Props {
     url: string;
+    queryTimestamp: Number;
     addCallback: any;
 }
 
 interface State {
     isLoading: boolean;
-    url: string;
+    queryTimestamp: Number;
     items: any;
 }
 
@@ -119,7 +121,7 @@ export default class AnalyzerTable extends React.Component<Props, State> {
 
         this.state = {
             isLoading: false,
-            url: '',
+            queryTimestamp: 0,
             items: null
         };
     }
@@ -175,13 +177,13 @@ export default class AnalyzerTable extends React.Component<Props, State> {
     }
 
     private ensureDataFetched() {
-        if (this.props.url === this.state.url) {
+        if (this.props.queryTimestamp === this.state.queryTimestamp) {
             return;
         }
 
         this.setState({
             isLoading: true,
-            url: this.props.url
+            queryTimestamp: this.props.queryTimestamp
         });
 
         fetch(this.props.url)

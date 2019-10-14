@@ -40,7 +40,7 @@ namespace ConfigLogic.Dashboard
                 return ItemStatus.Disabled;
             }
 
-            var tmpQuery = chart.SkipLast(1).AsEnumerable();
+            var tmpQuery = chart.SkipLast(2).AsEnumerable();
             double finalTmpValue;
 
             if (item.StatusSplitFactor > 0 && chart.Count > item.StatusSplitFactor)
