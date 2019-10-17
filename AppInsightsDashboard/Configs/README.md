@@ -1,5 +1,8 @@
 # Configuration
 
+## Application ID and API key
+To find your App ID and create an API key for your AppInsights application, follow [this guide](https://dev.applicationinsights.io/documentation/Authorization/API-key-and-App-ID).
+
 ## tokens.json
 Create a `tokens.json` file with the following contents
 
@@ -42,30 +45,30 @@ namespace AppInsightsDashboard.Configs
                         "PG Staging",
                         new []
                         {
-                            DashboardItem.AddRequestPerMinute(options: item => { item.ApiToken = apiToken; }),
-                            DashboardItem.AddRequestResponseTime(options: item => { item.ApiToken = apiToken; }),
-                            DashboardItem.AddFailedRequestsPercentage(options: item => { item.ApiToken = apiToken; }),
-                            DashboardItem.AddExceptionPerMinute(options: item => { item.ApiToken = apiToken; }),
-                            DashboardItem.AddWebTestsPercentage(options: item => { item.ApiToken = apiToken; })
+                            DashboardItem.AddRequestPerMinute(apiToken),
+                            DashboardItem.AddRequestResponseTime(apiToken),
+                            DashboardItem.AddFailedRequestsPercentage(apiToken),
+                            DashboardItem.AddExceptionPerMinute(apiToken),
+                            DashboardItem.AddWebTestsPercentage(apiToken)
                         }
                     },
                     {
                         "Exceptions",
                         new []
                         {
-                            DashboardItem.AddExceptionsWhere(
+                            DashboardItem.AddExceptionsWhere(apiToken,
                                 "Task Canceled",
-                                item => { item.ApiToken = apiToken; },
+                                null,
                                 "| where type contains 'TaskCanceledException'"),
 
-                            DashboardItem.AddExceptionsWhere(
+                            DashboardItem.AddExceptionsWhere(apiToken,
                                 "Null Reference",
-                                item => { item.ApiToken = apiToken; },
+                                null,
                                 "| where type contains 'NullReferenceException'"),
 
-                            DashboardItem.AddExceptionsWhere(
+                            DashboardItem.AddExceptionsWhere(apiToken,
                                 "Argument Null",
-                                item => { item.ApiToken = apiToken; },
+                                null,
                                 "| where type contains 'ArgumentNullException'")
                         }
                     }
