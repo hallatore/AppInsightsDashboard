@@ -16,7 +16,7 @@ namespace AppInsights.Analyzers
             var whereQuery = @"
                 | project domain = extract('^(https|http)://(.*?)/', 2, url), duration, itemCount, success
                 | summarize duration = avg(duration), failedCount=sumif(itemCount, success == false), totalCount=sum(itemCount) by domain
-                | order by failedCount desc
+                | order by totalCount desc
                 | take 20
                 | project domain, totalCount, duration, failedCount, failedPercentage = 100.0 / totalCount * failedCount";
 

@@ -15,7 +15,7 @@ namespace AppInsights.Analyzers
 
             var whereQuery = @"
                 | summarize duration = avg(duration), failedCount=sumif(itemCount, success == false), totalCount=sum(itemCount) by operation_Name
-                | order by failedCount desc
+                | order by totalCount desc
                 | take 20
                 | project operation_Name, totalCount, duration, failedCount, failedPercentage = 100.0 / totalCount * failedCount";
 
