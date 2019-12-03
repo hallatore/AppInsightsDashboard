@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace AppInsights.Analyzers
 {
-    public class UrlAnalyzer
+    public class RoleAnalyzer
     {
         public static async Task<IAnalyzerResult> Analyze(ApiToken apiToken, StructuredQuery query, string[] queryParts)
         {
@@ -14,10 +14,10 @@ namespace AppInsights.Analyzers
             QueryGroup queryGroup;
 
             var whereQuery = @"
-                | summarize duration = avg(duration), failedCount=sumif(itemCount, success == false), totalCount=sum(itemCount) by url
+                | summarize duration = avg(duration), failedCount=sumif(itemCount, success == false), totalCount=sum(itemCount) by cloud_RoleInstance
                 | order by totalCount desc
                 | take 20
-                | project url, totalCount, duration, failedCount, failedPercentage = 100.0 / totalCount * failedCount";
+                | project cloud_RoleInstance, totalCount, duration, failedCount, failedPercentage = 100.0 / totalCount * failedCount";
 
             if (isRequestsQuery)
             {
@@ -40,7 +40,7 @@ namespace AppInsights.Analyzers
 
             var queryString = queryGroup.ToString();
             var result = await AppInsightsClient.GetTableQuery(apiToken, queryString);
-            result.Columns[0].Name = "Url";
+            result.Columns[0].Name = "Role";
             result.Columns[1].Name = "Count";
             result.Columns[2].Name = "Duration";
             result.Columns[3].Name = "Failures";
@@ -50,11 +50,11 @@ namespace AppInsights.Analyzers
             {
                 row[2] = $"{row[2]:0} ms";
                 row[4] = $"{row[4]:0} %";
-                row.Add($"where url == '{row[0]}'");
-                row.Add($"where url != '{row[0]}'");
+                row.Add($"where cloud_RoleInstance == '{row[0]}'");
+                row.Add($"where cloud_RoleInstance != '{row[0]}'");
             }
 
-            return new TableAnalyzerResult("Urls", true, result);
+            return new TableAnalyzerResult("Roles", true, result);
         }
     }
 }

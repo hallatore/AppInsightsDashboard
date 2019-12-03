@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AppInsights;
 
 namespace ConfigLogic.Dashboard
 {
@@ -72,6 +73,23 @@ namespace ConfigLogic.Dashboard
             }
 
             return ItemStatus.Normal;
+        }
+
+        public static DashboardItem AddQuery(
+            ApiToken apiToken,
+            string name = "Requests",
+            Action<DashboardItem>? options = null,
+            string query = "")
+        {
+            var item = new DashboardItem(name, apiToken, query)
+            {
+                Postfix = "",
+                Total = ItemTotal.Average,
+                MinChartValue = 100
+            };
+
+            options?.Invoke(item);
+            return item;
         }
 
         public static DashboardItem AddRequestPerMinute(

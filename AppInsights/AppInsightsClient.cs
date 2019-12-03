@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,32 +14,54 @@ namespace AppInsights
 {
     public static class AppInsightsClient
     {
-        // https://dev.applicationinsights.io/
-        private const string QueryUrl = "https://api.applicationinsights.io/v1/apps/{0}/query";
+        private const string QueryUrl = "https://api.applicationinsights.io/v1/{0}/{1}/query";
 
-        private static readonly ConcurrentDictionary<string, HttpClient> HttpClients = new ConcurrentDictionary<string, HttpClient>();
+        private static readonly ConcurrentDictionary<Guid, HttpClient> HttpClients = new ConcurrentDictionary<Guid, HttpClient>();
 
-        private static HttpClient GetHttpClient(string apiKey)
+        private static HttpClient GetHttpClient(ApiToken apiToken)
         {
             return HttpClients.GetOrAdd(
-                apiKey,
-                key =>
+                apiToken.Id,
+                id =>
                 {
                     var client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("x-api-key", key);
+
+                    if (!string.IsNullOrWhiteSpace(apiToken.Key))
+                    {
+                        client.DefaultRequestHeaders.Add("x-api-key", apiToken.Key);
+                    }
+                    else
+                    {
+                        var accessToken = GetAccessToken(apiToken).Result;
+                        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                    }
+
                     return client;
                 });
         }
 
-        public static async Task<TableResult> GetTableQuery(Guid appid, string apikey, string query)
+        private static async Task<string> GetAccessToken(ApiToken apiToken)
         {
-            return (await GetTablesQuery(appid, apikey, query)).First();
+            var app = ConfidentialClientApplicationBuilder.Create(apiToken.ClientId.ToString())
+                .WithClientSecret(apiToken.ClientSecret)
+                .WithAuthority(new Uri($"https://login.microsoftonline.com/{apiToken.Tenant}"))
+                .Build();
+
+            var result = await app.AcquireTokenForClient(new[] { "https://westus2.api.loganalytics.io/.default" })
+                .ExecuteAsync();
+
+            return result.AccessToken;
         }
 
-        public static async Task<List<TableResult>> GetTablesQuery(Guid appid, string apikey, params string[] queries)
+        public static async Task<TableResult> GetTableQuery(ApiToken apiToken, string query)
         {
-            var httpClient = GetHttpClient(apikey);
-            var url = string.Format(QueryUrl, appid);
+            return (await GetTablesQuery(apiToken, query)).First();
+        }
+
+        public static async Task<List<TableResult>> GetTablesQuery(ApiToken apiToken, params string[] queries)
+        {
+            var httpClient = GetHttpClient(apiToken);
+            var url = string.Format(QueryUrl, apiToken.Type.ToString().ToLower(), apiToken.Id);
             var jsonRequest = JsonConvert.SerializeObject(new { query = queries[0] });
             var response = await httpClient.PostAsync(url, new StringContent(jsonRequest, Encoding.UTF8, "application/json"));
             var responseJson = await response.Content.ReadAsStringAsync();

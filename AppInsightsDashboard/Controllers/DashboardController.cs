@@ -43,7 +43,7 @@ namespace AppInsightsDashboard.Controllers
         {
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
             var itemQuery = GetQueryString(item, item.Duration.GetString(), item.Duration.GetIntervalString());
-            var table = await AppInsightsClient.GetTableQuery(item.ApiToken.Id, item.ApiToken.Key, itemQuery);
+            var table = await AppInsightsClient.GetTableQuery(item.ApiToken, itemQuery);
             var values = table.Rows.Select(row => new RowItem(row[0], row[1])).ToList();
             var value = await GetValueQuery(item, GetQueryString(item, item.Duration.GetString(), "90d"));
 
@@ -166,19 +166,21 @@ namespace AppInsightsDashboard.Controllers
             switch (analyzer)
             {
                 case "RequestsAnalyzer":
-                    return await RequestsAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await RequestsAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "UrlAnalyzer":
-                    return await UrlAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await UrlAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "DomainAnalyzer":
-                    return await DomainAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await DomainAnalyzer.Analyze(item.ApiToken, query, queryParts);
+                case "RoleAnalyzer":
+                    return await RoleAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "StatusCodesAnalyzer":
-                    return await StatusCodesAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await StatusCodesAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "RequestExceptionsAnalyzer":
-                    return await ExceptionsAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await ExceptionsAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "StacktraceAnalyzer":
-                    return await StacktraceAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await StacktraceAnalyzer.Analyze(item.ApiToken, query, queryParts);
                 case "ExceptionMessageAnalyzer":
-                    return await ExceptionMessageAnalyzer.Analyze(item.ApiToken.Id, item.ApiToken.Key, query, queryParts);
+                    return await ExceptionMessageAnalyzer.Analyze(item.ApiToken, query, queryParts);
             }
 
             throw new InvalidOperationException($"Analyzer \"{analyzer}\" was not found.");
@@ -219,7 +221,7 @@ namespace AppInsightsDashboard.Controllers
 
         private async Task<double> GetValueQuery(ConfigLogic.Dashboard.DashboardItem item, string query)
         {
-            var table = await AppInsightsClient.GetTableQuery(item.ApiToken.Id, item.ApiToken.Key, query);
+            var table = await AppInsightsClient.GetTableQuery(item.ApiToken, query);
             var value = 0.0;
 
             if (table.Rows.Count > 0 && table.Rows[0].Count > 1 && (table.Rows[0][1] is double || table.Rows[0][1] is long))
@@ -257,13 +259,13 @@ namespace AppInsightsDashboard.Controllers
             queryGroup.RemoveProjectAndSummarize();
             queryGroup.Append(QueryBuilder.Parse("| summarize sum(itemCount)"));
             var query = queryGroup.ToString();
-            var table = await AppInsightsClient.GetTableQuery(item.ApiToken.Id, item.ApiToken.Key, query);
+            var table = await AppInsightsClient.GetTableQuery(item.ApiToken, query);
             return table.Rows.First()[0] as long? ?? 0;
         }
 
         private async Task<List<RowItem>> GetChartValues(ConfigLogic.Dashboard.DashboardItem item, string query)
         {
-            var table = await AppInsightsClient.GetTableQuery(item.ApiToken.Id, item.ApiToken.Key, query);
+            var table = await AppInsightsClient.GetTableQuery(item.ApiToken, query);
             return table.Rows.Select(row => new RowItem(row[0], row[1])).ToList();
         }
 

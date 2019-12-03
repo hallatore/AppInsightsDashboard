@@ -55,6 +55,10 @@ namespace AppInsights
                         AddWhere("requests", part);
                     }
                 }
+                else
+                {
+                    AddWhere(part);
+                }
             }
         }
 

@@ -6,7 +6,7 @@ namespace AppInsights.Analyzers
 {
     public class StatusCodesAnalyzer
     {
-        public static async Task<IAnalyzerResult> Analyze(Guid appid, string apikey, StructuredQuery query, string[] queryParts)
+        public static async Task<IAnalyzerResult> Analyze(ApiToken apiToken, StructuredQuery query, string[] queryParts)
         {
             query = QueryBuilder.RemoveProject(query);
             query = QueryBuilder.RemoveSummarize(query);
@@ -38,7 +38,7 @@ namespace AppInsights.Analyzers
             }
 
             var queryString = queryGroup.ToString();
-            var result = await AppInsightsClient.GetTableQuery(appid, apikey, queryString);
+            var result = await AppInsightsClient.GetTableQuery(apiToken, queryString);
             result.Columns[0].Name = "Status code";
             result.Columns[1].Name = "Count";
 

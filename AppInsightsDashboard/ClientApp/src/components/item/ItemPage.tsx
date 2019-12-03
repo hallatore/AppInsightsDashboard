@@ -264,6 +264,9 @@ export default class ItemPage extends React.Component<Props, State> {
                             <AnalyzerTable url={this.getAnalyzerUrl('DomainAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
+                            <AnalyzerTable url={this.getAnalyzerUrl('RoleAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
+                        </AreaContainer>
+                        <AreaContainer>
                             <AnalyzerTable url={this.getAnalyzerUrl('StatusCodesAnalyzer')} queryTimestamp={this.state.queryTimestamp} addCallback={(queryPart: string) => this.addCallback(queryPart)}/>
                         </AreaContainer>
                         <AreaContainer>
@@ -298,7 +301,8 @@ export default class ItemPage extends React.Component<Props, State> {
         this.setState({ 
             duration: ItemDuration.Custom,
             durationFrom: from,
-            durationTo: to 
+            durationTo: to,
+            queryTimestamp: (new Date()).getTime()
         }, () => this.ensureDataFetched());
     }
 

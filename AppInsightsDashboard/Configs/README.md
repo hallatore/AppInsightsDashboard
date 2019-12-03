@@ -36,7 +36,7 @@ namespace AppInsightsDashboard.Configs
     {
         public (Guid id, Dictionary<string, DashboardItem[]> groups) Init(IConfiguration config)
         {
-            var apiToken = new ApiToken(config, "appInsights-production");
+            var apiToken = new ApiToken(config, "appInsights-production", ResourceType.Apps, AccessType.Key);
 
             return (Guid.Parse("<unique guid>"),
                 new Dictionary<string, DashboardItem[]>
