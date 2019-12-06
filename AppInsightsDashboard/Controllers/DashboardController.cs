@@ -42,6 +42,19 @@ namespace AppInsightsDashboard.Controllers
         public async Task<dynamic> Overview(Guid dashboardId, int groupIndex, int itemIndex)
         {
             var item = _config.Dashboards[dashboardId].Select(d => d.Value).ToList()[groupIndex][itemIndex];
+
+            if (item.IsRawQuery)
+            {
+                var rawValue = await GetValueQuery(item, item.Query);
+                return new
+                {
+                    Value = item.FormatValue(rawValue),
+                    ChartValues = new object[0],
+                    ChartMax = 0,
+                    Status = item.GetStatus(item, rawValue, new List<double>())
+                };
+            }
+
             var itemQuery = GetQueryString(item, item.Duration.GetString(), item.Duration.GetIntervalString());
             var table = await AppInsightsClient.GetTableQuery(item.ApiToken, itemQuery);
             var values = table.Rows.Select(row => new RowItem(row[0], row[1])).ToList();
@@ -227,6 +240,9 @@ namespace AppInsightsDashboard.Controllers
             if (table.Rows.Count > 0 && table.Rows[0].Count > 1 && (table.Rows[0][1] is double || table.Rows[0][1] is long))
             {
                 value = table.Rows[0][1];
+            }
+            else if (table.Rows.Count > 0 && table.Rows[0].Count > 1 && table.Rows[0][1] is string && double.TryParse(table.Rows[0][1], out value))
+            {
             }
 
             if (item.Total == ItemTotal.Rpm)

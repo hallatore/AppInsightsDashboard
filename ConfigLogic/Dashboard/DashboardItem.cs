@@ -24,6 +24,7 @@ namespace ConfigLogic.Dashboard
         public string Name { get; }
         public ApiToken ApiToken { get; }
         public string Query { get; }
+        public bool IsRawQuery { get; set; }
         public string Postfix { get; set; }
         public ItemDuration Duration { get; set; }
         public ItemTotal Total { get; set; }
@@ -86,6 +87,24 @@ namespace ConfigLogic.Dashboard
                 Postfix = "",
                 Total = ItemTotal.Average,
                 MinChartValue = 100
+            };
+
+            options?.Invoke(item);
+            return item;
+        }
+
+        public static DashboardItem AddRawQuery(
+            ApiToken apiToken,
+            string name = "Requests",
+            Action<DashboardItem>? options = null,
+            string query = "")
+        {
+            var item = new DashboardItem(name, apiToken, query)
+            {
+                Postfix = "",
+                Total = ItemTotal.Sum,
+                MinChartValue = 100,
+                IsRawQuery = true
             };
 
             options?.Invoke(item);
