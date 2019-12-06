@@ -143,7 +143,31 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddFailedRequestsPercentage(
                                     pgProduction,
                                     name: "Seaware errors",
-                                    whereQuery: "| where operation_Name startswith 'ICapacityPricingSeaware'"),
+                                    whereQuery: "| where operation_Name startswith 'ICapacityPricingSeaware'")
+                            }
+                        },
+                        {
+                            "Seaware",
+                            new[]
+                            {
+                                DashboardItem.AddRawQuery(
+                                    apiProduction,
+                                    "Days since last issue",
+                                    query: @"
+                                        let exceptionsOperationIds = exceptions
+                                        | where outerMessage !contains 'Redis'
+                                        | where outerMessage contains 'connecting' or outerMessage contains 'connection' or outerMessage contains 'SwBizLogic/Service.svc'
+                                        | where timestamp > ago(300d)
+                                        | distinct operation_Id;
+                                        requests
+                                        | where timestamp > ago(300d)
+                                        | where name startswith 'POST /api/availability'
+                                        | where (operation_Id in (exceptionsOperationIds))
+                                        | where datetime_part('hour', timestamp) > 9 and datetime_part('hour', timestamp) < 21
+                                        | summarize errors = countif(success == false) by bin(timestamp, 1d)
+                                        | where errors > 100
+                                        | summarize max(timestamp), toint((now() - max(timestamp)) / 1d)"
+                                )
                             }
                         }
                     }
