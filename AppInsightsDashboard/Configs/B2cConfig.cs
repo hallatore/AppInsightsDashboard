@@ -27,7 +27,16 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddRequestPerMinute(siteProduction),
                                 DashboardItem.AddRequestResponseTime(siteProduction),
                                 DashboardItem.AddFailedRequestsPercentage(siteProduction),
-                                DashboardItem.AddExceptionPerMinute(siteProduction),
+                                DashboardItem.AddExceptionPerMinute(siteProduction, whereQuery: "| where type != 'Hurtigruten.Web.Presentation.Controllers.JavaScriptException'"),
+                                DashboardItem.AddExceptionPerMinute(
+                                    siteProduction, 
+                                    "JavaScript errors", 
+                                    whereQuery: "| where type == 'Hurtigruten.Web.Presentation.Controllers.JavaScriptException'", 
+                                    options: options =>
+                                    {
+                                        options.WarningThreshold = 0; 
+                                        options.ErrorThreshold = 200;
+                                    }),
                                 DashboardItem.AddWebTestsPercentage(siteProduction),
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
