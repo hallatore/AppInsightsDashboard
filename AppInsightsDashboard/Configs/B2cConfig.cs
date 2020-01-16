@@ -101,6 +101,10 @@ namespace AppInsightsDashboard.Configs
                                     whereQuery: @"| where operation_Name startswith 'POST /api/availability'"),
                                 DashboardItem.AddExceptionsWhere(
                                     apiProduction,
+                                    "P2P Availability",
+                                    whereQuery: @"| where operation_Name startswith 'POST /api/portToPortAvailability'"),
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
                                     "Cabin selection",
                                     whereQuery: @"| where 
                                         operation_Name startswith 'POST /api/quotes/' and 
