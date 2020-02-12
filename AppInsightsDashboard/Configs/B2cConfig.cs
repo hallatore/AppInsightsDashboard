@@ -76,9 +76,10 @@ namespace AppInsightsDashboard.Configs
                                     {
                                         options.Postfix = string.Empty;
                                         options.Total = ItemTotal.Sum;
-                                        options.ErrorThreshold = 1;
+                                        options.WarningThreshold = 100;
+                                        options.ErrorThreshold = 1000;
                                     },
-                                    whereQuery: @"| where url contains 'Util/login.aspx' and url !contains 'EPiServer%2fCMS'")
+                                    whereQuery: @"| where url contains 'Util/login.aspx' and url !contains 'EPiServer%2fCMS' and url !contains '%2fmvc%2f' and url !contains '%2fmodules%2f'")
                             }
                         },
                         {
