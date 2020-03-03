@@ -12,6 +12,7 @@ namespace AppInsightsDashboard.Configs
         public (Guid id, Dictionary<string, DashboardItem[]> groups) Init(IConfiguration config)
         {
             var siteProduction = new ApiToken(config, "site-production", ResourceType.Apps, AccessType.Key);
+            var apiProduction = new ApiToken(config, "api-production", ResourceType.Apps, AccessType.Key);
 
             return (Guid.Parse("292F6FBC-6C21-40AF-AF47-D40AC8ABB8CF"),
                     new Dictionary<string, DashboardItem[]>
@@ -35,6 +36,21 @@ namespace AppInsightsDashboard.Configs
                                     siteProduction,
                                     "Missing cabin description",
                                     whereQuery: @"| where type contains 'MissingCabinDescriptionException'",
+                                    options: options =>
+                                    {
+                                        options.ErrorThreshold = 1;
+                                    }
+                                ),
+                            }
+                        },
+                        {
+                            "Gateway",
+                            new[]
+                            {
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Seaware loading issue",
+                                    whereQuery: @"| where * contains 'Data Loading issue'",
                                     options: options =>
                                     {
                                         options.ErrorThreshold = 1;
