@@ -23,8 +23,13 @@ namespace AppInsightsDashboard.Configs
                             {
                                 DashboardItem.AddCustomEventsWhere(
                                     siteProduction,
-                                    "Browser events",
-                                    whereQuery: @""
+                                    "No availability in cabin selection (OLD BOOKING)",
+                                    whereQuery: @"| where * contains 'Old selection page: Missing cabin availability'"
+                                ),
+                                DashboardItem.AddCustomEventsWhere(
+                                    siteProduction,
+                                    "No availability in cabin selection (NEW BOOKING)",
+                                    whereQuery: @"| where * contains 'New selection page: Missing cabin availability'"
                                 ),
                             }
                         },
@@ -41,6 +46,15 @@ namespace AppInsightsDashboard.Configs
                                         options.ErrorThreshold = 1;
                                     }
                                 ),
+                                DashboardItem.AddExceptionsWhere(
+                                    siteProduction,
+                                    "Missing view attribute on Polar Outside cabin",
+                                    whereQuery: @"| where type contains 'MissingCabinViewValueOnPolarOutsideCabin'",
+                                    options: options =>
+                                    {
+                                        options.ErrorThreshold = 1;
+                                    }
+                                ),
                             }
                         },
                         {
@@ -49,12 +63,17 @@ namespace AppInsightsDashboard.Configs
                             {
                                 DashboardItem.AddExceptionsWhere(
                                     apiProduction,
-                                    "Seaware loading issue",
+                                    "SeaWare data loading issue",
                                     whereQuery: @"| where * contains 'Data Loading issue'",
                                     options: options =>
                                     {
                                         options.ErrorThreshold = 1;
                                     }
+                                ),
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Exceptions from PG",
+                                    whereQuery: @"| where operation_Name contains 'api/pg'"
                                 ),
                             }
                         },
