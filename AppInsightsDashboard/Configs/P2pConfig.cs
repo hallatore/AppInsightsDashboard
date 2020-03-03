@@ -38,6 +38,25 @@ namespace AppInsightsDashboard.Configs
                             new[]
                             {
                                 DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Availability",
+                                    whereQuery: @"| where operation_Name contains 'rest/portToPort/availability'"
+                                ),
+                                DashboardItem.AddExceptionsWhere(
+                                    siteProduction,
+                                    "Selection not available after all",
+                                    whereQuery: @" | where operation_Name contains 'portToPort'
+                                                   | where outerMessage contains 'Ship CATEGORY selected available for waitlist only'
+                                                   | where outerMessage contains 'The booking is waitlisted for one or more Selling limit'"
+                                ),
+                                DashboardItem.AddExceptionsWhere(
+                                    siteProduction,
+                                    "Exceptions",
+                                    whereQuery: @" | where operation_Name contains 'portToPort'
+                                                   | where outerMessage !contains 'Ship CATEGORY selected available for waitlist only'
+                                                   | where outerMessage !contains 'The booking is waitlisted for one or more Selling limit'"
+                                ),
+                                DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing cabin description",
                                     whereQuery: @"| where type contains 'MissingCabinDescriptionException'",
@@ -55,6 +74,7 @@ namespace AppInsightsDashboard.Configs
                                         options.ErrorThreshold = 1;
                                     }
                                 ),
+                               
                             }
                         },
                         {
