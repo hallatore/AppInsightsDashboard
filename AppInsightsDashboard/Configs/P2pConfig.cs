@@ -51,11 +51,19 @@ namespace AppInsightsDashboard.Configs
                                 ),
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
+                                    "Unable to locate quote",
+                                    whereQuery: @" | where operation_Name contains 'portToPort'
+                                                   | where outerMessage contains 'Unable to locate an item of type Quote in the cache with a key of'"
+                                ),
+                                DashboardItem.AddExceptionsWhere(
+                                    siteProduction,
                                     "Exceptions",
                                     whereQuery: @" | where operation_Name contains 'portToPort'
                                                    | where outerMessage !contains 'Ship CATEGORY selected available for waitlist only'
-                                                   | where outerMessage !contains 'The booking is waitlisted for one or more Selling limit'"
+                                                   | where outerMessage !contains 'The booking is waitlisted for one or more Selling limit'
+                                                   | where outerMessage !contains 'Unable to locate an item of type Quote in the cache with a key of'"
                                 ),
+                               
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing cabin description",
