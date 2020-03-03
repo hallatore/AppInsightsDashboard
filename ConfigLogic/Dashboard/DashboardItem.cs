@@ -262,6 +262,32 @@ namespace ConfigLogic.Dashboard
             return item;
         }
 
+        public static DashboardItem AddCustomEventsWhere(
+            ApiToken apiToken,
+            string name = "Custom events",
+            Action<DashboardItem>? options = null,
+            string whereQuery = "")
+        {
+            var query = $@"
+                customEvents
+                | where timestamp > ago(1h)
+                | where client_Type == 'Browser'
+                {whereQuery}
+                | summarize _count=sum(itemCount) by bin(timestamp, 2m)
+                | project timestamp, _count";
+
+            var item = new DashboardItem(name, apiToken, query)
+            {
+                MinChartValue = 10,
+                Total = ItemTotal.Sum,
+                WarningThreshold = 10,
+                ErrorThreshold = 50
+            };
+
+            options?.Invoke(item);
+            return item;
+        }
+
         public static DashboardItem AddWebTestsPercentage(
             ApiToken apiToken,
             string name = "Web tests 24h",
