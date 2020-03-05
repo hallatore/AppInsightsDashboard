@@ -61,7 +61,9 @@ namespace AppInsightsDashboard.Configs
                                     whereQuery: @" | where operation_Name contains 'portToPort'
                                                    | where outerMessage !contains 'Ship CATEGORY selected available for waitlist only'
                                                    | where outerMessage !contains 'The booking is waitlisted for one or more Selling limit'
-                                                   | where outerMessage !contains 'Unable to locate an item of type Quote in the cache with a key of'"
+                                                   | where outerMessage !contains 'Unable to locate an item of type Quote in the cache with a key of'
+                                                   | where type !contains 'MissingCabinViewValueOnPolarOutsideCabin'
+                                                   | where type !contains 'MissingCabinDescriptionException'"
                                 ),
                                
                                 DashboardItem.AddExceptionsWhere(
