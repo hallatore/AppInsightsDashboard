@@ -63,9 +63,20 @@ namespace AppInsightsDashboard.Configs
                                                    | where outerMessage !contains 'The booking is waitlisted for one or more Selling limit'
                                                    | where outerMessage !contains 'Unable to locate an item of type Quote in the cache with a key of'
                                                    | where type !contains 'MissingCabinViewValueOnPolarOutsideCabin'
-                                                   | where type !contains 'MissingCabinDescriptionException'"
+                                                   | where type !contains 'MissingCabinDescriptionException'
+                                                   | where type !contains 'MissingMealDescriptionException'"
                                 ),
                                
+                                DashboardItem.AddExceptionsWhere(
+                                    siteProduction,
+                                    "Missing meal description",
+                                    whereQuery: @"| where type contains 'MissingMealDescriptionException'",
+                                    options: options =>
+                                    {
+                                        options.ErrorThreshold = 1;
+                                    }
+                                ),
+
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing cabin description",
@@ -75,6 +86,7 @@ namespace AppInsightsDashboard.Configs
                                         options.ErrorThreshold = 1;
                                     }
                                 ),
+
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing view attribute on Polar Outside cabin",
