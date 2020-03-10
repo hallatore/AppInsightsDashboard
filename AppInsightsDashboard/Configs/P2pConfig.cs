@@ -38,11 +38,6 @@ namespace AppInsightsDashboard.Configs
                             new[]
                             {
                                 DashboardItem.AddExceptionsWhere(
-                                    apiProduction,
-                                    "Availability",
-                                    whereQuery: @"| where operation_Name contains 'rest/portToPort/availability'"
-                                ),
-                                DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Selection not available after all",
                                     whereQuery: @" | where operation_Name contains 'portToPort'
@@ -96,7 +91,8 @@ namespace AppInsightsDashboard.Configs
                                         options.ErrorThreshold = 1;
                                     }
                                 ),
-                               
+
+
                             }
                         },
                         {
@@ -117,6 +113,29 @@ namespace AppInsightsDashboard.Configs
                                     "Exceptions from PG",
                                     whereQuery: @"| where operation_Name contains 'api/pg'"
                                 ),
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Availability",
+                                    whereQuery: @"| where operation_Name startswith 'POST /api/portToPortAvailability'"),
+
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Dbms lock",
+                                    whereQuery: @"| where customDimensions  contains 'UpdateBooking: DbmsLock'"
+                                ),
+
+                                 DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Voyage cache dictionary",
+                                    whereQuery: @"| where customDimensions contains 'VoyageCacheDictionary'"
+                                ),
+
+                                 DashboardItem.AddExceptionsWhere(
+                                     apiProduction,
+                                     "Search voyage key dictionary",
+                                     whereQuery: @"| where customDimensions contains 'SearchVoyageKeyDictionary'"
+                                 ),
+                                 
                             }
                         },
                     }
