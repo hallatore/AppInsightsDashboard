@@ -75,11 +75,7 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing cabin description",
-                                    whereQuery: @"| where type contains 'MissingCabinDescriptionException'",
-                                    options: options =>
-                                    {
-                                        options.ErrorThreshold = 1;
-                                    }
+                                    whereQuery: @"| where type contains 'MissingCabinDescriptionException'"
                                 ),
 
                                 DashboardItem.AddExceptionsWhere(
