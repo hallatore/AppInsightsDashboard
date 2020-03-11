@@ -57,18 +57,6 @@ namespace AppInsightsDashboard.Configs
                                         type contains 'ArgumentNullException' or 
                                         type contains 'UriFormatException'"),
 
-                                // This exception is only used on P2P this far, but the name should be updated if the B2C booking flow
-                                // also add tracking of whether or not a cabin from PG is missing a matching cabin description in epiServer
-                                DashboardItem.AddExceptionsWhere(
-                                    siteProduction,
-                                    "P2P Missing cabin description",
-                                    whereQuery: "| where type contains 'MissingCabinDescriptionException'",
-                                    options: options =>
-                                    {
-                                        options.ErrorThreshold = 1;
-                                    }
-                                ),
-
                                 DashboardItem.AddRequestPerMinute(
                                     siteProduction, 
                                     "Login prompts",
