@@ -24,13 +24,15 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddCustomEventsWhere(
                                     siteProduction,
                                     "No availability in cabin selection (OLD BOOKING)",
-                                    whereQuery: @"| where * contains 'Old selection page: Missing cabin availability'"
+                                    whereQuery: @"| where * contains 'Old selection page: Missing cabin availability'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
                                 ),
                                 DashboardItem.AddCustomEventsWhere(
                                     siteProduction,
                                     "No availability in cabin selection (NEW BOOKING)",
-                                    whereQuery: @"| where * contains 'New selection page: Missing cabin availability'"
-                                ),
+                                    whereQuery: @"| where * contains 'New selection page: Missing cabin availability'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
+                                )
                             }
                         },
                         {
@@ -42,13 +44,16 @@ namespace AppInsightsDashboard.Configs
                                     "Selection not available after all",
                                     whereQuery: @" | where operation_Name contains 'portToPort'
                                                    | where outerMessage contains 'Ship CATEGORY selected available for waitlist only'
-                                                   | where outerMessage contains 'The booking is waitlisted for one or more Selling limit'"
+                                                   | where outerMessage contains 'The booking is waitlisted for one or more Selling limit'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
+
                                 ),
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Unable to locate quote",
                                     whereQuery: @" | where operation_Name contains 'portToPort'
-                                                   | where outerMessage contains 'Unable to locate an item of type Quote in the cache with a key of'"
+                                                   | where outerMessage contains 'Unable to locate an item of type Quote in the cache with a key of'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
                                 ),
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
@@ -59,9 +64,11 @@ namespace AppInsightsDashboard.Configs
                                                    | where outerMessage !contains 'Unable to locate an item of type Quote in the cache with a key of'
                                                    | where type !contains 'MissingCabinViewValueOnPolarOutsideCabin'
                                                    | where type !contains 'MissingCabinDescriptionException'
-                                                   | where type !contains 'MissingMealDescriptionException'"
+                                                   | where type !contains 'MissingMealDescriptionException'
+                                                   | where customDimensions contains 'VoyageCacheDictionary'
+                                                   | where customDimensions contains 'SearchVoyageKeyDictionary'"
                                 ),
-                               
+
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing meal description",
@@ -69,6 +76,7 @@ namespace AppInsightsDashboard.Configs
                                     options: options =>
                                     {
                                         options.ErrorThreshold = 1;
+                                        options.Duration = ItemDuration.OneDay;
                                     }
                                 ),
 
@@ -79,6 +87,7 @@ namespace AppInsightsDashboard.Configs
                                     options: options =>
                                     {
                                         options.ErrorThreshold = 1;
+                                        options.Duration = ItemDuration.OneDay;
                                     }
                                 ),
 
@@ -89,10 +98,9 @@ namespace AppInsightsDashboard.Configs
                                     options: options =>
                                     {
                                         options.ErrorThreshold = 1;
+                                        options.Duration = ItemDuration.OneDay;
                                     }
-                                ),
-
-
+                                )
                             }
                         },
                         {
@@ -103,10 +111,7 @@ namespace AppInsightsDashboard.Configs
                                     apiProduction,
                                     "SeaWare data loading issue",
                                     whereQuery: @"| where * contains 'Data Loading issue'",
-                                    options: options =>
-                                    {
-                                        options.ErrorThreshold = 1;
-                                    }
+                                    options: options => { options.ErrorThreshold = 1; }
                                 ),
                                 DashboardItem.AddExceptionsWhere(
                                     apiProduction,
@@ -121,23 +126,25 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddExceptionsWhere(
                                     apiProduction,
                                     "Dbms lock",
-                                    whereQuery: @"| where customDimensions  contains 'UpdateBooking: DbmsLock'"
+                                    whereQuery: @"| where customDimensions  contains 'UpdateBooking: DbmsLock'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
                                 ),
 
-                                 DashboardItem.AddExceptionsWhere(
+                                DashboardItem.AddExceptionsWhere(
                                     apiProduction,
                                     "Voyage cache dictionary",
-                                    whereQuery: @"| where customDimensions contains 'VoyageCacheDictionary'"
+                                    whereQuery: @"| where customDimensions contains 'VoyageCacheDictionary'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
                                 ),
 
-                                 DashboardItem.AddExceptionsWhere(
-                                     apiProduction,
-                                     "Search voyage key dictionary",
-                                     whereQuery: @"| where customDimensions contains 'SearchVoyageKeyDictionary'"
-                                 ),
-                                 
+                                DashboardItem.AddExceptionsWhere(
+                                    apiProduction,
+                                    "Search voyage key dictionary",
+                                    whereQuery: @"| where customDimensions contains 'SearchVoyageKeyDictionary'",
+                                    options: options => { options.Duration = ItemDuration.OneDay; }
+                                )
                             }
-                        },
+                        }
                     }
                 );
         }
