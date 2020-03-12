@@ -232,7 +232,7 @@ export default class ItemPage extends React.Component<Props, State> {
                         <DurationButton duration={ItemDuration.SevenDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.SevenDays)}>7 days</DurationButton>
                         <DurationButton duration={ItemDuration.ThirtyDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.ThirtyDays)}>30 days</DurationButton>
                         <DurationButton duration={ItemDuration.NinetyDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.NinetyDays)}>90 days</DurationButton>
-                        <DurationButton duration={ItemDuration.NinetyDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.HundredAndEightyDays)}>180 days</DurationButton>
+                        <DurationButton duration={ItemDuration.HundredAndEightyDays} currentDuration={duration} onClick={() => this.updateDuration(ItemDuration.HundredAndEightyDays)}>180 days</DurationButton>
                         {duration === ItemDuration.Custom && 
                             durationFrom != null && 
                             durationTo != null && 
