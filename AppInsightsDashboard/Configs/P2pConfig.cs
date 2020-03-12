@@ -65,8 +65,8 @@ namespace AppInsightsDashboard.Configs
                                                    | where type !contains 'MissingCabinViewValueOnPolarOutsideCabin'
                                                    | where type !contains 'MissingCabinDescriptionException'
                                                    | where type !contains 'MissingMealDescriptionException'
-                                                   | where customDimensions contains 'VoyageCacheDictionary'
-                                                   | where customDimensions contains 'SearchVoyageKeyDictionary'"
+                                                   | where customDimensions !contains 'VoyageCacheDictionary'
+                                                   | where customDimensions !contains 'SearchVoyageKeyDictionary'"
                                 ),
 
                                 DashboardItem.AddExceptionsWhere(
