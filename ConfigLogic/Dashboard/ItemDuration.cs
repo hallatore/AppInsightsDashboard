@@ -10,6 +10,7 @@
         SevenDays = 5,
         ThirtyDays = 6,
         NinetyDays = 7,
+        HundredAndEightyDays = 8,
         Custom = 42
     }
 }

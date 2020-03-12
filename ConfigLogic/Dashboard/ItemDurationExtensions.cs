@@ -25,6 +25,8 @@ namespace ConfigLogic.Dashboard
                     return "30d";
                 case ItemDuration.NinetyDays:
                     return "90d";
+                case ItemDuration.HundredAndEightyDays:
+                    return "180d";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(duration), duration, null);
             }
