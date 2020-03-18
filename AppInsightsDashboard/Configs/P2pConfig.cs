@@ -75,7 +75,8 @@ namespace AppInsightsDashboard.Configs
                                     whereQuery: @"| where type contains 'MissingMealDescriptionException'",
                                     options: options =>
                                     {
-                                        options.ErrorThreshold = 1;
+                                        options.ErrorThreshold = double.MaxValue;
+                                        options.WarningThreshold = 1;
                                         options.Duration = ItemDuration.OneDay;
                                     }
                                 ),
@@ -86,7 +87,8 @@ namespace AppInsightsDashboard.Configs
                                     whereQuery: @"| where type contains 'MissingCabinDescriptionException'",
                                     options: options =>
                                     {
-                                        options.ErrorThreshold = 1;
+                                        options.ErrorThreshold = double.MaxValue;
+                                        options.WarningThreshold = 1;
                                         options.Duration = ItemDuration.OneDay;
                                     }
                                 ),
@@ -97,7 +99,8 @@ namespace AppInsightsDashboard.Configs
                                     whereQuery: @"| where type contains 'MissingCabinViewValueOnPolarOutsideCabin'",
                                     options: options =>
                                     {
-                                        options.ErrorThreshold = 1;
+                                        options.ErrorThreshold = double.MaxValue;
+                                        options.WarningThreshold = 1;
                                         options.Duration = ItemDuration.OneDay;
                                     }
                                 )
