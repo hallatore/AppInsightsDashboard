@@ -15,6 +15,7 @@ namespace AppInsightsDashboard.Configs
             var apiProduction = new ApiToken(config, "api-production", ResourceType.Apps, AccessType.Key);
             var myBookingProduction = new ApiToken(config, "my-booking-production", ResourceType.Apps, AccessType.Key);
             var pgProduction = new ApiToken(config, "pg-production", ResourceType.Apps, AccessType.Key);
+            var b2bProduction = new ApiToken(config, "b2b-production", ResourceType.Apps, AccessType.Key);
             var swStaging = new ApiToken(config, "staging-workspace", ResourceType.Workspaces, AccessType.AppSecret);
 
             return (Guid.Parse("7fd512f1-d1a0-4353-92da-50f02207d70e"),
@@ -316,6 +317,17 @@ namespace AppInsightsDashboard.Configs
                                         | where errors > 100
                                         | summarize max(timestamp), toint((now() - max(timestamp)) / 1d)"
                                 )
+                            }
+                        },
+                        {
+                            "B2B",
+                            new[]
+                            {
+                                DashboardItem.AddRequestPerMinute(b2bProduction),
+                                DashboardItem.AddRequestResponseTime(b2bProduction),
+                                DashboardItem.AddFailedRequestsPercentage(b2bProduction, whereQuery: "| where * !contains 'X-IgnoreErrors=true'"),
+                                DashboardItem.AddExceptionPerMinute(b2bProduction, whereQuery: "| where * !contains 'X-IgnoreErrors=true'"),
+                                DashboardItem.AddWebTestsPercentage(b2bProduction)
                             }
                         }
                     }
