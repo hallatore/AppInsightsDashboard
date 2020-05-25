@@ -28,7 +28,7 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddRequestPerMinute(siteProduction),
                                 DashboardItem.AddRequestResponseTime(siteProduction),
                                 DashboardItem.AddFailedRequestsPercentage(siteProduction),
-                                DashboardItem.AddExceptionPerMinute(siteProduction, whereQuery: "| where type != 'Hurtigruten.Web.Presentation.Controllers.JavaScriptException'"),
+                                DashboardItem.AddExceptionPerMinute(siteProduction, whereQuery: "| where type != 'Hurtigruten.Web.Presentation.Controllers.JavaScriptException' and type != 'Hurtigruten.Web.Presentation.Rest.PortToPort.Common.Exceptions.MissingMealDescriptionException'"),
                                 DashboardItem.AddExceptionPerMinute(
                                     siteProduction, 
                                     "JavaScript errors", 
