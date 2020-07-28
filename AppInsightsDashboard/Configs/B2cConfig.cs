@@ -207,7 +207,11 @@ namespace AppInsightsDashboard.Configs
                                 DashboardItem.AddExceptionsWhere(
                                     siteProduction,
                                     "Missing meal description",
-                                    whereQuery: @"| where type contains 'MissingMealDescriptionException'",
+                                    whereQuery: @"  | where outerMessage !contains 'Got meal code (ALC03) with no matching description'
+                                                    | where outerMessage !contains 'Got meal code (ALCSUP03) with no matching description'
+                                                    | where outerMessage !contains 'Got meal code (VIPPACK) with no matching description'
+                                                    | where outerMessage !contains 'Got meal code (WEPA) with no matching description'
+                                                    | where type contains 'MissingMealDescriptionException'",
                                     options: options =>
                                     {
                                         options.ErrorThreshold = double.MaxValue;
