@@ -70,7 +70,19 @@ namespace AppInsightsDashboard.Configs
                                         options.WarningThreshold = 100;
                                         options.ErrorThreshold = 1000;
                                     },
-                                    whereQuery: @"| where url contains 'Util/login.aspx' and url !contains 'EPiServer%2fCMS' and url !contains '%2fmvc%2f' and url !contains '%2fmodules%2f'")
+                                    whereQuery: @"| where url contains 'Util/login.aspx' and url !contains 'EPiServer%2fCMS' and url !contains '%2fmvc%2f' and url !contains '%2fmodules%2f'"),
+
+                                DashboardItem.AddRequestPerMinute(
+                                    siteProduction, 
+                                    "Not found",
+                                    options: options =>
+                                    {
+                                        options.Postfix = string.Empty;
+                                        options.Total = ItemTotal.Sum;
+                                        options.WarningThreshold = double.MaxValue;
+                                        options.ErrorThreshold = double.MaxValue;
+                                    },
+                                    whereQuery: @"| where resultCode == 404 | where name startswith ""GET "" | where name !contains(""."")")
                             }
                         },
                         {
