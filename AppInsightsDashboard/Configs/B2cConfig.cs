@@ -82,7 +82,7 @@ namespace AppInsightsDashboard.Configs
                                         options.WarningThreshold = double.MaxValue;
                                         options.ErrorThreshold = double.MaxValue;
                                     },
-                                    whereQuery: @"| where resultCode == 404 | where name startswith ""GET "" | where name !contains(""."")")
+                                    whereQuery: @"| where resultCode == 404 | where name startswith ""GET /"" | where name !contains(""."")")
                             }
                         },
                         {
